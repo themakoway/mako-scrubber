@@ -1,0 +1,12 @@
+Mako Scrubber removes hidden metadata — GPS location, camera make/model, timestamps, and software tags — from your photos before you share them.
+
+Share a photo from any app to Mako Scrubber, and it hands you back a clean copy with that metadata stripped, ready to post or send. Batch-process multiple photos at once, and share or delete the cleaned copies right from the app. Cleaned photos are automatically removed after 30 days.
+
+Mako Scrubber is local-only: it requests no INTERNET permission, so nothing ever leaves your device. No accounts, no cloud processing, no subscriptions.
+
+Features:
+* Strips GPS, camera make/model, timestamp, and software EXIF tags
+* Works from any app's share sheet
+* Batch scrub, share, and delete
+* Zero INTERNET permission — verify it yourself in the manifest
+* Free and open source (GPLv3)

@@ -1,0 +1,28 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Ignore entire .idea dir (the existing file only excludes parts of it)
+/.idea/
+
+# Signing keys — never commit these
+*.jks
+*.keystore
+keystore.properties
+
+# Build outputs
+app/release/
+*.apk
+*.aab

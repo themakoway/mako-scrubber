@@ -1,0 +1,1 @@
+Strips EXIF metadata from photos before you share them. Local-only
