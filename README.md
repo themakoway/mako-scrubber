@@ -34,7 +34,7 @@ Mako Scrubber strips GPS location, camera make/model, timestamps, and other iden
 ## Verify our claims
 
 - The `AndroidManifest.xml` in this repo requests no `INTERNET` permission — check for yourself in [app/src/main/AndroidManifest.xml](app/src/main/AndroidManifest.xml).
-- [Exodus Privacy report](https://reports.exodus-privacy.eu.org/) — *(add link once scanned)*
+- [Exodus Privacy report](https://reports.exodus-privacy.eu.org/en/reports/com.mako.makoscrubber/latest/) — 0 trackers detected. The 2 permissions listed (`CHECK_LICENSE`, a Play Store licensing check, and `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, an Android system self-permission) grant no access to your data.
 - Full source is here. Build it yourself and compare against the signed release APK.
 
 ## Part of The Mako Way
