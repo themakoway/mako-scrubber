@@ -8,7 +8,12 @@ Mako Scrubber strips GPS location, camera make/model, timestamps, and other iden
 
 ## Screenshots
 
-*(add screenshots here — see `fastlane/metadata/android/en-US/images/phoneScreenshots/`)*
+<p>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200">
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200">
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200">
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200">
+</p>
 
 ## Features
 
