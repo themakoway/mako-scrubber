@@ -114,7 +114,6 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
     val initialTitle = stringResource(R.string.initial_audit)
     val verificationTitle = stringResource(R.string.verification_report)
 
-    // MediaStore writes on Android 9 and below need WRITE_EXTERNAL_STORAGE at runtime
     var hasWriteAccess by remember {
         mutableStateOf(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
@@ -155,7 +154,6 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
         }
     }
 
-    // Warn and get consent before scrubbing anything too large to process at full resolution
     val startScrub: () -> Unit = {
         scope.launch {
             val oversized = withContext(Dispatchers.IO) {
@@ -309,7 +307,6 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
                         val exif = ExifInterface(stream)
                         var foundCount = 0
 
-                        // Any GPS data at all, not just latitude
                         val gpsTags = listOf(
                             ExifInterface.TAG_GPS_LATITUDE,
                             ExifInterface.TAG_GPS_LONGITUDE,
@@ -331,7 +328,6 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
                             ExifInterface.TAG_DATETIME_ORIGINAL to context.getString(R.string.tag_timestamp) + " (Original)",
                             ExifInterface.TAG_DATETIME_DIGITIZED to context.getString(R.string.tag_timestamp) + " (Digitized)",
                             ExifInterface.TAG_SOFTWARE to context.getString(R.string.tag_software),
-                            // Standard EXIF field names, left untranslated
                             ExifInterface.TAG_ARTIST to "Artist",
                             ExifInterface.TAG_COPYRIGHT to "Copyright",
                             ExifInterface.TAG_USER_COMMENT to "User Comment",
@@ -398,8 +394,6 @@ fun ScrubFooter() {
     }
 }
 
-// Smallest power-of-two sample size at which the decoded bitmap plus its rotated
-// copy fit comfortably in the free heap; 1 means full resolution is safe
 private fun estimatedSampleSize(context: Context, uri: Uri): Int {
     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     try {
@@ -424,14 +418,10 @@ private fun estimatedSampleSize(context: Context, uri: Uri): Int {
 
 private suspend fun scrubAndSaveImage(context: Context, uri: Uri, startSampleSize: Int = 1): Uri? = withContext(Dispatchers.IO) {
     return@withContext try {
-        // BitmapFactory ignores the EXIF orientation tag, and scrubbing strips it —
-        // bake the rotation into the pixels so the output isn't sideways
         val orientation = context.contentResolver.openInputStream(uri)?.use {
             ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
         } ?: ExifInterface.ORIENTATION_NORMAL
 
-        // Keep the original resolution when memory allows; halve it only if decoding
-        // (or rotating, which needs a second copy) actually exhausts the heap
         var bitmap: Bitmap? = null
         var inSampleSize = startSampleSize
         while (bitmap == null && inSampleSize <= 16) {
