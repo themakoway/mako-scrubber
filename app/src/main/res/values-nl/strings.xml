@@ -46,4 +46,7 @@
     <string name="onboarding_privacy_msg">Privacy door Ontwerp\n\nDeze app is alleen lokaal.\nHet heeft geen internetmachtigingen.</string>
     <string name="error_invalid_share">Beveiligingswaarschuwing: Ongeldige gedeelde gegevens</string>
     <string name="copyright_format">© %1$d v%2$s</string>
+    <string name="large_image_title">ZEER GROTE FOTO</string>
+    <string name="large_image_msg">Sommige van deze foto\'s zijn te groot om op dit apparaat op volledige resolutie te verwerken. Ze worden verkleind voordat ze worden opgeschoond. Alle metadata wordt hoe dan ook verwijderd.</string>
+    <string name="btn_reduce_scrub">VERKLEINEN &amp; OPSCHONEN</string>
 </resources>

@@ -46,4 +46,7 @@
     <string name="copyright_format">© %1$d v%2$s</string>
     <string name="app_title">MAKO SCRUBBER</string>
     <string name="onboarding_privacy_msg">Confidentialité par Conception\n\nCette application est uniquement hors ligne.\nElle n\'a aucune permission internet.</string>
+    <string name="large_image_title">PHOTO TRÈS VOLUMINEUSE</string>
+    <string name="large_image_msg">Certaines de ces photos sont trop volumineuses pour être traitées en pleine résolution sur cet appareil. Elles seront réduites avant le nettoyage. Toutes les métadonnées sont supprimées dans tous les cas.</string>
+    <string name="btn_reduce_scrub">RÉDUIRE ET NETTOYER</string>
 </resources>

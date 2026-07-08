@@ -46,4 +46,7 @@
     <string name="onboarding_privacy_msg">隐私设计\n\n此应用仅限本地运行。\n具有零网络权限。</string>
     <string name="error_invalid_share">安全警报：无效的共享数据</string>
     <string name="copyright_format">© %1$d 版本 %2$s</string>
+    <string name="large_image_title">照片过大</string>
+    <string name="large_image_msg">部分照片过大，无法在此设备上以全分辨率处理。清除前将缩小尺寸。无论如何，所有元数据都会被删除。</string>
+    <string name="btn_reduce_scrub">缩小并清除</string>
 </resources>

@@ -1,18 +1,23 @@
 package com.mako.makoscrubber
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
 import com.mako.makoscrubber.ui.theme.MakoScrubberTheme
 import com.mako.makoscrubber.ui.theme.CauseFont
@@ -108,39 +114,85 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
     val initialTitle = stringResource(R.string.initial_audit)
     val verificationTitle = stringResource(R.string.verification_report)
 
-    LaunchedEffect(imageUris) {
-        withContext(Dispatchers.IO) {
-            if (imageUris.isNotEmpty()) {
-                val report = generateAuditReport(context, imageUris, initialTitle)
-                withContext(Dispatchers.Main) {
-                    auditResults = report
-                }
+    // MediaStore writes on Android 9 and below need WRITE_EXTERNAL_STORAGE at runtime
+    var hasWriteAccess by remember {
+        mutableStateOf(
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted -> hasWriteAccess = granted }
+    LaunchedEffect(Unit) {
+        if (!hasWriteAccess) permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
 
-                if (autoScrub && scrubbedUris.isEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        isScrubbing = true
-                    }
-                    val results = mutableListOf<Uri>()
+    var showLargeWarning by remember { mutableStateOf(false) }
+
+    val runScrub: () -> Unit = {
+        if (!isScrubbing && imageUris.isNotEmpty()) {
+            isScrubbing = true
+            scope.launch {
+                val results = withContext(Dispatchers.IO) {
+                    val r = mutableListOf<Uri>()
                     imageUris.forEach { uri ->
-                        scrubAndSaveImage(context, uri)?.let { results.add(it) }
+                        scrubAndSaveImage(context, uri, estimatedSampleSize(context, uri))?.let { r.add(it) }
                     }
-
-                    if (results.isNotEmpty()) {
-                        settings.incrementScrubbedCount(results.size)
-                    }
-
-                    val verification = generateAuditReport(context, results, verificationTitle)
-
-                    // Safely transition back to the main thread dispatcher before mutating UI state objects
-                    withContext(Dispatchers.Main) {
-                        scrubbedUris = results
-                        auditResults = "$report\n---\n$verification"
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        isScrubbing = false
-                    }
+                    r
                 }
+
+                if (results.isNotEmpty()) {
+                    settings.incrementScrubbedCount(results.size)
+                }
+
+                val verification = generateAuditReport(context, results, verificationTitle)
+                scrubbedUris = results
+                auditResults = "$auditResults\n---\n$verification"
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                isScrubbing = false
             }
         }
+    }
+
+    // Warn and get consent before scrubbing anything too large to process at full resolution
+    val startScrub: () -> Unit = {
+        scope.launch {
+            val oversized = withContext(Dispatchers.IO) {
+                imageUris.count { estimatedSampleSize(context, it) > 1 }
+            }
+            if (oversized > 0) showLargeWarning = true else runScrub()
+        }
+    }
+
+    LaunchedEffect(imageUris, hasWriteAccess) {
+        if (imageUris.isNotEmpty()) {
+            auditResults = withContext(Dispatchers.IO) {
+                generateAuditReport(context, imageUris, initialTitle)
+            }
+            if (autoScrub && hasWriteAccess && scrubbedUris.isEmpty() && !isScrubbing) {
+                startScrub()
+            }
+        }
+    }
+
+    if (showLargeWarning) {
+        AlertDialog(
+            onDismissRequest = { showLargeWarning = false },
+            title = { Text(stringResource(R.string.large_image_title), fontFamily = CauseFont, fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.large_image_msg)) },
+            confirmButton = {
+                Button(
+                    onClick = { showLargeWarning = false; runScrub() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
+                ) { Text(stringResource(R.string.btn_reduce_scrub), fontFamily = CauseFont, color = Color.White) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLargeWarning = false }) {
+                    Text(stringResource(R.string.cancel), fontFamily = CauseFont, color = Color.Gray)
+                }
+            }
+        )
     }
 
     Column(
@@ -179,24 +231,10 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
                     if (scrubbedUris.isEmpty()) {
                         Button(
                             onClick = {
-                                if (imageUris.isNotEmpty() && !isScrubbing) {
-                                    isScrubbing = true
-                                    scope.launch {
-                                        val results = mutableListOf<Uri>()
-                                        imageUris.forEach { uri ->
-                                            scrubAndSaveImage(context, uri)?.let { results.add(it) }
-                                        }
-                                        scrubbedUris = results
-
-                                        if (results.isNotEmpty()) {
-                                            settings.incrementScrubbedCount(results.size)
-                                        }
-
-                                        val verification = generateAuditReport(context, results, verificationTitle)
-                                        auditResults = "$auditResults\n---\n$verification"
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        isScrubbing = false
-                                    }
+                                if (!hasWriteAccess) {
+                                    permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                } else if (imageUris.isNotEmpty() && !isScrubbing) {
+                                    startScrub()
                                 }
                             },
                             enabled = !isScrubbing,
@@ -269,15 +307,43 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
                 context.contentResolver.openInputStream(uri).use { stream ->
                     if (stream != null) {
                         val exif = ExifInterface(stream)
+                        var foundCount = 0
+
+                        // Any GPS data at all, not just latitude
+                        val gpsTags = listOf(
+                            ExifInterface.TAG_GPS_LATITUDE,
+                            ExifInterface.TAG_GPS_LONGITUDE,
+                            ExifInterface.TAG_GPS_ALTITUDE,
+                            ExifInterface.TAG_GPS_TIMESTAMP,
+                            ExifInterface.TAG_GPS_DATESTAMP,
+                            ExifInterface.TAG_GPS_AREA_INFORMATION,
+                            ExifInterface.TAG_GPS_PROCESSING_METHOD
+                        )
+                        if (exif.latLong != null || gpsTags.any { !exif.getAttribute(it).isNullOrBlank() }) {
+                            report.append("${context.getString(R.string.status_found)} ${context.getString(R.string.tag_gps)}\n")
+                            foundCount++
+                        }
+
                         val tags = listOf(
-                            ExifInterface.TAG_GPS_LATITUDE to context.getString(R.string.tag_gps),
                             ExifInterface.TAG_MAKE to context.getString(R.string.tag_make),
                             ExifInterface.TAG_MODEL to context.getString(R.string.tag_model),
                             ExifInterface.TAG_DATETIME to context.getString(R.string.tag_timestamp),
-                            ExifInterface.TAG_SOFTWARE to context.getString(R.string.tag_software)
+                            ExifInterface.TAG_DATETIME_ORIGINAL to context.getString(R.string.tag_timestamp) + " (Original)",
+                            ExifInterface.TAG_DATETIME_DIGITIZED to context.getString(R.string.tag_timestamp) + " (Digitized)",
+                            ExifInterface.TAG_SOFTWARE to context.getString(R.string.tag_software),
+                            // Standard EXIF field names, left untranslated
+                            ExifInterface.TAG_ARTIST to "Artist",
+                            ExifInterface.TAG_COPYRIGHT to "Copyright",
+                            ExifInterface.TAG_USER_COMMENT to "User Comment",
+                            ExifInterface.TAG_IMAGE_DESCRIPTION to "Image Description",
+                            ExifInterface.TAG_CAMERA_OWNER_NAME to "Camera Owner",
+                            ExifInterface.TAG_BODY_SERIAL_NUMBER to "Body Serial Number",
+                            ExifInterface.TAG_LENS_SERIAL_NUMBER to "Lens Serial Number",
+                            ExifInterface.TAG_LENS_MAKE to "Lens Make",
+                            ExifInterface.TAG_LENS_MODEL to "Lens Model",
+                            ExifInterface.TAG_MAKER_NOTE to "Maker Note"
                         )
 
-                        var foundCount = 0
                         tags.forEach { (tag, label) ->
                             val value = exif.getAttribute(tag)
                             if (!value.isNullOrBlank()) {
@@ -332,26 +398,54 @@ fun ScrubFooter() {
     }
 }
 
-private suspend fun scrubAndSaveImage(context: Context, uri: Uri): Uri? = withContext(Dispatchers.IO) {
-    return@withContext try {
-        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+// Smallest power-of-two sample size at which the decoded bitmap plus its rotated
+// copy fit comfortably in the free heap; 1 means full resolution is safe
+private fun estimatedSampleSize(context: Context, uri: Uri): Int {
+    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    try {
         context.contentResolver.openInputStream(uri).use { BitmapFactory.decodeStream(it, null, options) }
+    } catch (e: Exception) {
+        return 1
+    }
+    if (options.outWidth <= 0 || options.outHeight <= 0) return 1
 
-        val reqWidth = 4096
-        val reqHeight = 4096
-        var inSampleSize = 1
-        if (options.outHeight > reqHeight || options.outWidth > reqWidth) {
-            val halfHeight: Int = options.outHeight / 2
-            val halfWidth: Int = options.outWidth / 2
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+    val runtime = Runtime.getRuntime()
+    val availableHeap = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory())
+    val budget = availableHeap / 2
+
+    var sampleSize = 1
+    while (sampleSize < 16) {
+        val bytesNeeded = (options.outWidth.toLong() / sampleSize) * (options.outHeight.toLong() / sampleSize) * 4 * 2
+        if (bytesNeeded <= budget) break
+        sampleSize *= 2
+    }
+    return sampleSize
+}
+
+private suspend fun scrubAndSaveImage(context: Context, uri: Uri, startSampleSize: Int = 1): Uri? = withContext(Dispatchers.IO) {
+    return@withContext try {
+        // BitmapFactory ignores the EXIF orientation tag, and scrubbing strips it —
+        // bake the rotation into the pixels so the output isn't sideways
+        val orientation = context.contentResolver.openInputStream(uri)?.use {
+            ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        } ?: ExifInterface.ORIENTATION_NORMAL
+
+        // Keep the original resolution when memory allows; halve it only if decoding
+        // (or rotating, which needs a second copy) actually exhausts the heap
+        var bitmap: Bitmap? = null
+        var inSampleSize = startSampleSize
+        while (bitmap == null && inSampleSize <= 16) {
+            try {
+                val loadOptions = BitmapFactory.Options().apply { this.inSampleSize = inSampleSize }
+                val decoded = context.contentResolver.openInputStream(uri).use {
+                    BitmapFactory.decodeStream(it, null, loadOptions)
+                } ?: return@withContext null
+                bitmap = applyExifOrientation(decoded, orientation)
+            } catch (e: OutOfMemoryError) {
                 inSampleSize *= 2
             }
         }
-
-        val loadOptions = BitmapFactory.Options().apply { this.inSampleSize = inSampleSize }
-        val bitmap = context.contentResolver.openInputStream(uri).use {
-            BitmapFactory.decodeStream(it, null, loadOptions)
-        } ?: return@withContext null
+        if (bitmap == null) return@withContext null
 
         val fileName = "MakoScrub_${System.currentTimeMillis()}.jpg"
         val values = ContentValues().apply {
@@ -374,4 +468,19 @@ private suspend fun scrubAndSaveImage(context: Context, uri: Uri): Uri? = withCo
         e.printStackTrace()
         null
     }
+}
+
+private fun applyExifOrientation(bitmap: Bitmap, orientation: Int): Bitmap {
+    val matrix = Matrix()
+    when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+        ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
+        ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
+        ExifInterface.ORIENTATION_TRANSPOSE -> { matrix.postRotate(90f); matrix.postScale(-1f, 1f) }
+        ExifInterface.ORIENTATION_TRANSVERSE -> { matrix.postRotate(270f); matrix.postScale(-1f, 1f) }
+        else -> return bitmap
+    }
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 }

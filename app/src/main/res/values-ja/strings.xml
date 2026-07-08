@@ -46,4 +46,7 @@
     <string name="onboarding_privacy_msg">プライバシー設計\n\nこのアプリはオフライン専用です。\nインターネットへのアクセス権限は一切ありません。</string>
     <string name="error_invalid_share">セキュリティアラート：無効な共有データ</string>
     <string name="copyright_format">© %1$d 版 %2$s</string>
+    <string name="large_image_title">非常に大きな写真</string>
+    <string name="large_image_msg">一部の写真はサイズが大きすぎるため、この端末ではフル解像度で処理できません。クリーニング前に縮小されます。いずれの場合もメタデータはすべて削除されます。</string>
+    <string name="btn_reduce_scrub">縮小してクリーニング</string>
 </resources>
