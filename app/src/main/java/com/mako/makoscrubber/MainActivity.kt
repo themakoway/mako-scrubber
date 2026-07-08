@@ -299,7 +299,6 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                     },
                     onDeleteSelected = { uris ->
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            // System confirmation dialog; works even for rows this install doesn't own
                             try {
                                 val request = MediaStore.createDeleteRequest(context.contentResolver, uris)
                                 deleteRequestLauncher.launch(IntentSenderRequest.Builder(request.intentSender).build())
