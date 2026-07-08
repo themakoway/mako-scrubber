@@ -46,4 +46,7 @@
     <string name="copyright_format">© %1$d v%2$s</string>
     <string name="app_title">MAKO SCRUBBER</string>
     <string name="onboarding_privacy_msg">Privacy by Design\n\nDiese App ist rein lokal.\nSie hat keinerlei Internetberechtigungen.</string>
+    <string name="large_image_title">SEHR GROSSES FOTO</string>
+    <string name="large_image_msg">Einige dieser Fotos sind zu groß, um auf diesem Gerät in voller Auflösung verarbeitet zu werden. Sie werden vor der Reinigung verkleinert. Alle Metadaten werden in jedem Fall entfernt.</string>
+    <string name="btn_reduce_scrub">VERKLEINERN &amp; REINIGEN</string>
 </resources>

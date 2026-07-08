@@ -46,4 +46,7 @@
     <string name="onboarding_privacy_msg">Privacy by Design\n\nQuesta app è solo offline.\nHa zero autorizzazioni internet.</string>
     <string name="error_invalid_share">Avviso di sicurezza: Dati di condivisione non validi</string>
     <string name="copyright_format">© %1$d v%2$s</string>
+    <string name="large_image_title">FOTO MOLTO GRANDE</string>
+    <string name="large_image_msg">Alcune di queste foto sono troppo grandi per essere elaborate a piena risoluzione su questo dispositivo. Verranno ridimensionate prima della pulizia. Tutti i metadati vengono comunque rimossi.</string>
+    <string name="btn_reduce_scrub">RIDUCI E PULISCI</string>
 </resources>

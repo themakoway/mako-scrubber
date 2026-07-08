@@ -46,4 +46,7 @@
     <string name="copyright_format">© %1$d v%2$s</string>
     <string name="app_title">MAKO SCRUBBER</string>
     <string name="onboarding_privacy_msg">Privacidade por Design\n\nEste app funciona totalmente offline.\nNão tem nenhuma permissão de internet.</string>
+    <string name="large_image_title">FOTO MUITO GRANDE</string>
+    <string name="large_image_msg">Algumas dessas fotos são grandes demais para serem processadas em resolução total neste aparelho. Elas serão reduzidas antes da limpeza. Todos os metadados são removidos de qualquer forma.</string>
+    <string name="btn_reduce_scrub">REDUZIR E LIMPAR</string>
 </resources>

@@ -1,8 +1,10 @@
 package com.mako.makoscrubber
 
+import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,7 +14,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -68,7 +72,9 @@ class MainActivity : ComponentActivity() {
         val isFirstLaunch = prefs.getBoolean("is_first_launch", true)
         val settings = (application as ScrubberApplication).settings
 
-        deleteOldScrubbedImages(this)
+        if (hasStorageAccess(this)) {
+            deleteOldScrubbedImages(this)
+        }
 
         setContent {
             MakoScrubberTheme {
@@ -215,9 +221,30 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
     val prefs = context.getSharedPreferences("mako_prefs", Context.MODE_PRIVATE)
     var showScrubTip by remember { mutableStateOf(false) }
 
+    var hasStorageAccess by remember { mutableStateOf(hasStorageAccess(context)) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        hasStorageAccess = grants.values.all { it }
+        if (hasStorageAccess) scrubbedImages = loadScrubbedImages(context)
+    }
+    LaunchedEffect(Unit) {
+        if (!hasStorageAccess) {
+            permissionLauncher.launch(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            )
+        }
+    }
+
+    val deleteRequestLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        scrubbedImages = loadScrubbedImages(context)
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && !showOnboarding) {
+            if (event == Lifecycle.Event.ON_RESUME && !showOnboarding && hasStorageAccess) {
                 val oldSize = scrubbedImages.size
                 scrubbedImages = loadScrubbedImages(context)
 
@@ -271,8 +298,24 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                         context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_chooser_title)))
                     },
                     onDeleteSelected = { uris ->
-                        uris.forEach { context.contentResolver.delete(it, null, null) }
-                        scrubbedImages = loadScrubbedImages(context)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            // System confirmation dialog; works even for rows this install doesn't own
+                            try {
+                                val request = MediaStore.createDeleteRequest(context.contentResolver, uris)
+                                deleteRequestLauncher.launch(IntentSenderRequest.Builder(request.intentSender).build())
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        } else {
+                            uris.forEach {
+                                try {
+                                    context.contentResolver.delete(it, null, null)
+                                } catch (e: SecurityException) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            scrubbedImages = loadScrubbedImages(context)
+                        }
                     },
                     showTip = showScrubTip,
                     onTipDismissed = {
@@ -542,6 +585,11 @@ fun MainFooter() {
             modifier = Modifier.clickable { uriHandler.openUri("https://www.makoway.app") }
         )
     }
+}
+
+private fun hasStorageAccess(context: Context): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 }
 
 private fun loadScrubbedImages(context: Context): List<Uri> {
