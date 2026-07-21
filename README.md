@@ -26,9 +26,8 @@ Mako Scrubber strips GPS location, camera make/model, timestamps, and other iden
 
 ## Install
 
-- **Play Store:** *(link once published)*
-- **IzzyOnDroid:** *(link once accepted)*
-- **F-Droid:** *(link once accepted)*
+- **Play Store:** *(https://play.google.com/store/apps/details?id=com.mako.makoscrubber)*
+- **F-Droid:** *pending*
 - **Obtainium:** point it at this GitHub repo's Releases to track updates directly
 
 ## Verify our claims
