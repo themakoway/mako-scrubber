@@ -1,0 +1,1 @@
+Fixes EXIF orientation handling, storage access on older Android versions, deletion crashes, and processing of large images.
