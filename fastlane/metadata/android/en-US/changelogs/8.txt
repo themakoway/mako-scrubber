@@ -1,0 +1,1 @@
+Fixed a portrait-orientation lock that broke the app on Android Auto, TVs, and some tablets.
