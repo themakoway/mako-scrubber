@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -633,7 +634,31 @@ private fun deleteOldScrubbedImages(context: Context) {
     }
     val folderPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "%Pictures/MakoScrub%" else "%/MakoScrub/%"
     val selectionArgs = arrayOf(folderPath, cutoffTime.toString())
+
+    val expectedCount = try {
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Images.Media._ID),
+            selection,
+            selectionArgs,
+            null
+        )?.use { it.count } ?: 0
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+
     try {
-        context.contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs)
-    } catch (e: Exception) { e.printStackTrace() }
+        val deletedCount = context.contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs)
+        if (deletedCount < expectedCount) {
+            Log.w(
+                "MakoScrubber",
+                "Auto-cleanup deleted $deletedCount of $expectedCount expired photos; " +
+                        "${expectedCount - deletedCount} may be un-owned by this install and were left behind."
+            )
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.w("MakoScrubber", "Auto-cleanup failed entirely; $expectedCount expired photos were left behind.", e)
+    }
 }
