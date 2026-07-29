@@ -1,0 +1,1 @@
+Mise à jour vers la dernière plateforme Android, avec un nettoyage automatique des anciennes photos plus fiable en arrière-plan.

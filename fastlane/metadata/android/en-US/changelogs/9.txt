@@ -1,0 +1,1 @@
+Updated to the latest Android platform target and made automatic cleanup of old scrubbed photos more reliable behind the scenes.

@@ -1,0 +1,1 @@
+Atualizado para a mais recente plataforma Android e tornada mais fiável a limpeza automática de fotos antigas em segundo plano.

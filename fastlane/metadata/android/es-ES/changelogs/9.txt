@@ -1,0 +1,1 @@
+Actualizado a la última plataforma Android y hecho más fiable el borrado automático de fotos antiguas en segundo plano.
