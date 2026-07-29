@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId = "com.mako.makoscrubber"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 8
         versionName = "1.4"
 
