@@ -163,7 +163,7 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                     settings.incrementScrubbedCount(results.size)
                 }
 
-                val verification = generateAuditReport(context, results, verificationTitle)
+                val verification = generateAuditReport(context, results, verificationTitle, isVerification = true)
                 scrubbedUris = results
                 auditResults = buildString {
                     append(auditResults)
@@ -328,7 +328,12 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
     }
 }
 
-private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title: String): String = withContext(Dispatchers.IO) {
+private suspend fun generateAuditReport(
+    context: Context,
+    uris: List<Uri>,
+    title: String,
+    isVerification: Boolean = false
+): String = withContext(Dispatchers.IO) {
     val report = StringBuilder()
     val fileLabel = if (uris.size == 1) context.getString(R.string.label_file) else context.getString(R.string.label_files)
 
@@ -399,23 +404,59 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
                 val retriever = MediaMetadataRetriever()
                 try {
                     retriever.setDataSource(context, uri)
+                    val found = context.getString(R.string.status_found)
                     var foundCount = 0
 
                     val location = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
                     if (!location.isNullOrBlank()) {
-                        report.append("${context.getString(R.string.status_found)} ${context.getString(R.string.tag_gps)}\n")
+                        val pretty = formatIso6709(location) ?: location.trimEnd('/')
+                        report.append("$found ${context.getString(R.string.tag_gps)}: $pretty\n")
                         foundCount++
                     }
-                    if (videoHasMetadataTrack(context, uri)) {
-                        report.append("${context.getString(R.string.status_found)} ${context.getString(R.string.tag_metadata_track)}\n")
+
+                    // Same kind of free-text identity tags the image path scans EXIF for.
+                    val textTags = listOf(
+                        MediaMetadataRetriever.METADATA_KEY_AUTHOR to "Author",
+                        MediaMetadataRetriever.METADATA_KEY_ARTIST to "Artist",
+                        MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST to "Album Artist",
+                        MediaMetadataRetriever.METADATA_KEY_TITLE to "Title",
+                        MediaMetadataRetriever.METADATA_KEY_COMPOSER to "Composer",
+                        MediaMetadataRetriever.METADATA_KEY_WRITER to "Writer",
+                        MediaMetadataRetriever.METADATA_KEY_ALBUM to "Album",
+                        MediaMetadataRetriever.METADATA_KEY_GENRE to "Genre"
+                    )
+                    textTags.forEach { (key, label) ->
+                        val value = retriever.extractMetadata(key)
+                        if (!value.isNullOrBlank()) {
+                            report.append("$found $label: ${value.take(20)}\n")
+                            foundCount++
+                        }
+                    }
+
+                    val fps = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)
+                    if (!fps.isNullOrBlank()) {
+                        val n = fps.toFloatOrNull()?.let { "%.0f".format(it) } ?: fps
+                        report.append("$found Capture Frame Rate: $n fps\n")
                         foundCount++
                     }
-                    // Capture time is informational only: the remux always restamps it to
-                    // "now", so it never keeps the verification report from reading clean.
-                    val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
-                    if (!date.isNullOrBlank()) {
-                        report.append("${context.getString(R.string.status_found)} ${context.getString(R.string.tag_video_timestamp)}\n")
+
+                    val trackMimes = videoMetadataTrackMimes(context, uri)
+                    if (trackMimes.isNotEmpty()) {
+                        report.append("$found ${context.getString(R.string.tag_metadata_track)} (${trackMimes.joinToString(", ")})\n")
+                        report.append("    ${context.getString(R.string.tag_metadata_track_desc)}\n")
+                        foundCount++
                     }
+
+                    // Capture time: the remux always restamps this to "now", so it is not a
+                    // finding. Show it (with its value) as a note on the initial audit only,
+                    // never counted, so the verification report can read clean.
+                    if (!isVerification) {
+                        val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
+                        if (!date.isNullOrBlank()) {
+                            report.append("${context.getString(R.string.status_note)} ${context.getString(R.string.tag_video_timestamp)} — ${formatVideoDate(date)}\n")
+                        }
+                    }
+
                     if (foundCount == 0) {
                         report.append(context.getString(R.string.status_clean) + "\n")
                     }
@@ -466,6 +507,21 @@ fun ScrubFooter() {
 
 private fun Context.isVideo(uri: Uri): Boolean =
     contentResolver.getType(uri)?.startsWith("video/") == true
+
+/** ISO-6709 ("+37.7749-122.4194/") -> "37.7749, -122.4194"; null if it doesn't parse. */
+private fun formatIso6709(raw: String): String? {
+    val m = Regex("([+-]\\d+(?:\\.\\d+)?)([+-]\\d+(?:\\.\\d+)?)").find(raw) ?: return null
+    val lat = m.groupValues[1].toDoubleOrNull() ?: return null
+    val lon = m.groupValues[2].toDoubleOrNull() ?: return null
+    return "%.4f, %.4f".format(lat, lon)
+}
+
+/** MediaMetadataRetriever DATE ("20240115T143022.000Z") -> "2024-01-15 14:30:22". */
+private fun formatVideoDate(raw: String): String {
+    val g = Regex("(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})(\\d{2})").find(raw)?.groupValues
+        ?: return raw.take(24)
+    return "${g[1]}-${g[2]}-${g[3]} ${g[4]}:${g[5]}:${g[6]}"
+}
 
 private fun estimatedSampleSize(context: Context, uri: Uri): Int {
     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }

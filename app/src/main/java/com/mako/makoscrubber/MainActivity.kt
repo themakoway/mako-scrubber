@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -467,9 +468,10 @@ fun DashboardContent(
                     ) {
                         items(images) { uri ->
                             val isSelected = selectedUris.contains(uri)
-                            AsyncImage(
-                                model = uri,
-                                contentDescription = "Cleaned Photo",
+                            val isVideo = remember(uri) {
+                                context.contentResolver.getType(uri)?.startsWith("video/") == true
+                            }
+                            Box(
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .clip(RoundedCornerShape(8.dp))
@@ -489,10 +491,34 @@ fun DashboardContent(
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             selectedUris = selectedUris + uri
                                         }
-                                    ),
-                                contentScale = ContentScale.Crop,
-                                alpha = if (isSelectionMode && !isSelected) 0.5f else 1.0f
-                            )
+                                    )
+                            ) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = if (isVideo) "Cleaned video" else "Cleaned photo",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop,
+                                    alpha = if (isSelectionMode && !isSelected) 0.5f else 1.0f
+                                )
+                                if (isVideo) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomStart)
+                                            .padding(4.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(Color.Black.copy(alpha = 0.55f))
+                                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Videocam,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">立即开始</string>
-    <string name="clean_new">清除新照片信息</string>
+    <string name="clean_new">清除新照片/视频信息</string>
     <string name="recently_cleaned">最近清除</string>
     <string name="delete_auto_msg">图片将在 30 天后自动删除。</string>
     <string name="no_images">暂无已清除元数据的图片。</string>
@@ -35,8 +35,10 @@
     <string name="tag_timestamp">时间戳</string>
     <string name="tag_software">软件</string>
     <string name="tag_metadata_track">嵌入式元数据轨道</string>
+    <string name="tag_metadata_track_desc">定时元数据：逐帧时间戳、相机运动/陀螺仪数据或 GPS 轨迹。</string>
     <string name="tag_video_timestamp">拍摄时间（清除时会被替换）</string>
     <string name="status_found">[已发现]</string>
+    <string name="status_note">[注意]</string>
     <string name="status_clean">[已清除] 未检测到敏感元数据。</string>
     <string name="status_error">[错误] 无法读取文件。</string>
     <string name="status_skip">跳过（不支持的类型）</string>

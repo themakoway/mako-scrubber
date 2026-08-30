@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">開始する</string>
-    <string name="clean_new">新しい写真をクリーニング</string>
+    <string name="clean_new">新しい写真・動画をクリーニング</string>
     <string name="recently_cleaned">最近のクリーニング</string>
     <string name="delete_auto_msg">画像は30日後に自動的に削除されます。</string>
     <string name="no_images">クリーニング済みの画像はありません。  写真を長押ししてファイルを 管理してください。</string>
@@ -35,8 +35,10 @@
     <string name="tag_timestamp">タイムスタンプ</string>
     <string name="tag_software">ソフトウェア</string>
     <string name="tag_metadata_track">埋め込みメタデータトラック</string>
+    <string name="tag_metadata_track_desc">時系列メタデータ：フレームごとのタイムスタンプ、カメラの動き・ジャイロ、GPS トラックなど。</string>
     <string name="tag_video_timestamp">撮影時刻（クリーニング時に置き換え）</string>
     <string name="status_found">[検出]</string>
+    <string name="status_note">[メモ]</string>
     <string name="status_clean">[クリーン] 機密メタデータは検出されませんでした。</string>
     <string name="status_error">[エラー] ファイルを読み込めませんでした。</string>
     <string name="status_skip">スキップ (非対応の形式)</string>

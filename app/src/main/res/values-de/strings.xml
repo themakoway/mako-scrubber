@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">JETZT STARTEN</string>
-    <string name="clean_new">NEUE FOTOS REINIGEN</string>
+    <string name="clean_new">NEUE FOTOS &amp; VIDEOS REINIGEN</string>
     <string name="recently_cleaned">ZULETZT GEREINIGT</string>
     <string name="delete_auto_msg">Bilder werden nach 30 Tagen automatisch gelöscht.</string>
     <string name="no_images">Noch keine gereinigten Bilder.  Lange drücken, um Dateien zu verwalten.</string>
@@ -35,8 +35,10 @@
     <string name="tag_timestamp">Zeitstempel</string>
     <string name="tag_software">Software</string>
     <string name="tag_metadata_track">Eingebettete Metadatenspur</string>
+    <string name="tag_metadata_track_desc">Zeitgesteuerte Metadaten – Zeitstempel pro Bild, Kamerabewegung/Gyroskop oder GPS-Spur.</string>
     <string name="tag_video_timestamp">Aufnahmezeit (wird beim Reinigen ersetzt)</string>
     <string name="status_found">[GEFUNDEN]</string>
+    <string name="status_note">[HINWEIS]</string>
     <string name="status_clean">[SAUBER] Keine sensiblen Metadaten erkannt.</string>
     <string name="status_error">[FEHLER] Datei konnte nicht gelesen werden.</string>
     <string name="status_skip">Überspringen (Nicht unterstützter Typ)</string>

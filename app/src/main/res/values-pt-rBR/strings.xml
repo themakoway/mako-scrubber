@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">COMEÇAR</string>
-    <string name="clean_new">LIMPAR NOVAS FOTOS</string>
+    <string name="clean_new">LIMPAR NOVAS FOTOS E VÍDEOS</string>
     <string name="recently_cleaned">LIMPAS RECENTEMENTE</string>
     <string name="delete_auto_msg">As imagens serão excluídas automaticamente após 30 dias.</string>
     <string name="no_images">Nenhuma imagem limpa ainda.</string>
@@ -35,8 +35,10 @@
     <string name="tag_timestamp">Data e hora</string>
     <string name="tag_software">Software</string>
     <string name="tag_metadata_track">Faixa de metadados incorporada</string>
+    <string name="tag_metadata_track_desc">Metadados temporizados: marcações de tempo por quadro, movimento/giroscópio da câmera ou trilha de GPS.</string>
     <string name="tag_video_timestamp">Hora de captura (substituída ao limpar)</string>
     <string name="status_found">[ENCONTRADO]</string>
+    <string name="status_note">[NOTA]</string>
     <string name="status_clean">[LIMPO] Nenhum metadado sensível detectado.</string>
     <string name="status_error">[ERRO] Não foi possível ler o arquivo.</string>
     <string name="status_skip">Ignorar (tipo não suportado)</string>

@@ -9,12 +9,15 @@ import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val FALLBACK_BUFFER_SIZE = 1 shl 20 // 1 MB, used when a track has no KEY_MAX_INPUT_SIZE
+private const val MAX_BUFFER_SIZE = 64 shl 20 // hard cap so a bogus KEY_MAX_INPUT_SIZE / grow loop can't OOM
 
 /**
  * Remuxes [uri] into a fresh MP4 in Movies/MakoScrub with the container metadata dropped
@@ -64,8 +67,13 @@ suspend fun scrubAndSaveVideo(context: Context, uri: Uri): Uri? = withContext(Di
             resolver.update(outUri, values, null, null)
         }
         outUri
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (e: CancellationException) {
+        runCatching { resolver.delete(outUri, null, null) }
+        throw e
+    } catch (e: Throwable) {
+        // Throwable, not Exception: a hostile file can drive MediaMuxer/MediaExtractor to
+        // OutOfMemoryError or a native-backed Error. Any of it means "can't remux this one".
+        Log.w("MakoScrubber", "video scrub failed for $uri", e)
         runCatching { resolver.delete(outUri, null, null) }
         null
     } finally {
@@ -74,19 +82,20 @@ suspend fun scrubAndSaveVideo(context: Context, uri: Uri): Uri? = withContext(Di
 }
 
 /**
- * True if [uri] carries a track that is neither video nor audio (iOS `mebx` timed metadata,
- * action-cam GPS/NMEA). Used by the audit report; [scrubAndSaveVideo] drops these tracks.
+ * MIME types of every track in [uri] that is neither video nor audio — iOS `mebx` timed
+ * metadata, action-cam GPS/NMEA logs, per-frame timing tracks. Empty when there are none.
+ * Used by the audit report; [scrubAndSaveVideo] drops all of these tracks.
  */
-fun videoHasMetadataTrack(context: Context, uri: Uri): Boolean {
+fun videoMetadataTrackMimes(context: Context, uri: Uri): List<String> {
     val extractor = MediaExtractor()
     return try {
         extractor.setDataSource(context, uri, null)
-        (0 until extractor.trackCount).any { i ->
+        (0 until extractor.trackCount).mapNotNull { i ->
             val mime = extractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME)
-            mime != null && !mime.startsWith("video/") && !mime.startsWith("audio/")
+            if (mime != null && !mime.startsWith("video/") && !mime.startsWith("audio/")) mime else null
         }
     } catch (e: Exception) {
-        false
+        emptyList()
     } finally {
         extractor.release()
     }
@@ -113,7 +122,8 @@ private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> Medi
                 rotation = format.getInteger(MediaFormat.KEY_ROTATION)
             }
             if (format.containsKey(MediaFormat.KEY_MAX_INPUT_SIZE)) {
-                bufferSize = maxOf(bufferSize, format.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE))
+                val declared = format.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
+                if (declared in (bufferSize + 1)..MAX_BUFFER_SIZE) bufferSize = declared
             }
 
             extractor.selectTrack(i)
@@ -136,9 +146,12 @@ private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> Medi
                 try {
                     sampleSize = extractor.readSampleData(buffer, 0)
                     break
-                } catch (e: IllegalArgumentException) {
-                    // Sample larger than KEY_MAX_INPUT_SIZE advertised — grow and retry.
-                    bufferSize *= 2
+                } catch (e: RuntimeException) {
+                    // Sample bigger than the buffer: IllegalArgumentException on most
+                    // devices, BufferOverflowException on some. Grow and retry, but stop
+                    // at MAX_BUFFER_SIZE so a corrupt sample size can't spin us into OOM.
+                    if (bufferSize >= MAX_BUFFER_SIZE) throw e
+                    bufferSize = (bufferSize * 2).coerceAtMost(MAX_BUFFER_SIZE)
                     buffer = ByteBuffer.allocate(bufferSize)
                 }
             }
