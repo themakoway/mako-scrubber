@@ -17,6 +17,12 @@
     <string name="scrubbing">NETTOYAGE…</string>
     <string name="share_1">PARTAGER LA PHOTO</string>
     <string name="share_n">PARTAGER %1$d PHOTOS</string>
+    <string name="scrub_video_1">NETTOYER 1 VIDÉO</string>
+    <string name="scrub_video_n">NETTOYER %1$d VIDÉOS</string>
+    <string name="scrub_media_n">NETTOYER %1$d FICHIERS</string>
+    <string name="share_video_1">PARTAGER LA VIDÉO</string>
+    <string name="share_video_n">PARTAGER %1$d VIDÉOS</string>
+    <string name="share_media_n">PARTAGER %1$d FICHIERS</string>
     <string name="cancel">ANNULER</string>
     <string name="about_mako">À PROPOS DE MAKO</string>
     <string name="share_chooser_title">Partager les photos via…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">Modèle de l\'appareil</string>
     <string name="tag_timestamp">Horodatage</string>
     <string name="tag_software">Logiciel</string>
+    <string name="tag_metadata_track">Piste de métadonnées intégrée</string>
+    <string name="tag_video_timestamp">Heure de capture (remplacée lors du nettoyage)</string>
     <string name="status_found">[TROUVÉ]</string>
     <string name="status_clean">[PROPRE] Aucune donnée sensible détectée.</string>
     <string name="status_error">[ERREUR] Impossible de lire le fichier.</string>
     <string name="status_skip">Ignorer (Format non supporté)</string>
+    <string name="status_scrub_failed">[IGNORÉ] %1$d fichier(s) n\'ont pas pu être nettoyés sans réencodage.</string>
     <string name="milestone_title">JALON ATTEINT !</string>
     <string name="milestone_msg">Vous avez nettoyé plus de %1$d photos ! Vous aimez l\'application ?</string>
     <string name="feedback_title">RETOUR MAKO</string>

@@ -17,6 +17,12 @@
     <string name="scrubbing">LIMPANDO…</string>
     <string name="share_1">COMPARTILHAR FOTO</string>
     <string name="share_n">COMPARTILHAR %1$d FOTOS</string>
+    <string name="scrub_video_1">LIMPAR 1 VÍDEO</string>
+    <string name="scrub_video_n">LIMPAR %1$d VÍDEOS</string>
+    <string name="scrub_media_n">LIMPAR %1$d ARQUIVOS</string>
+    <string name="share_video_1">COMPARTILHAR VÍDEO</string>
+    <string name="share_video_n">COMPARTILHAR %1$d VÍDEOS</string>
+    <string name="share_media_n">COMPARTILHAR %1$d ARQUIVOS</string>
     <string name="cancel">CANCELAR</string>
     <string name="about_mako">SOBRE A MAKO</string>
     <string name="share_chooser_title">Compartilhar fotos limpas via…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">Modelo da câmera</string>
     <string name="tag_timestamp">Data e hora</string>
     <string name="tag_software">Software</string>
+    <string name="tag_metadata_track">Faixa de metadados incorporada</string>
+    <string name="tag_video_timestamp">Hora de captura (substituída ao limpar)</string>
     <string name="status_found">[ENCONTRADO]</string>
     <string name="status_clean">[LIMPO] Nenhum metadado sensível detectado.</string>
     <string name="status_error">[ERRO] Não foi possível ler o arquivo.</string>
     <string name="status_skip">Ignorar (tipo não suportado)</string>
+    <string name="status_scrub_failed">[IGNORADO] Não foi possível limpar %1$d arquivo(s) sem recodificar.</string>
     <string name="milestone_title">MARCO ATINGIDO!</string>
     <string name="milestone_msg">Você já limpou mais de %1$d fotos! Está curtindo o app?</string>
     <string name="feedback_title">FEEDBACK DA MAKO</string>

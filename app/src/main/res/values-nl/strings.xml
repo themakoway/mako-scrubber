@@ -17,6 +17,12 @@
     <string name="scrubbing">OPSCHONEN…</string>
     <string name="share_1">FOTO DELEN</string>
     <string name="share_n">%1$d FOTO\'S DELEN</string>
+    <string name="scrub_video_1">1 VIDEO OPSCHONEN</string>
+    <string name="scrub_video_n">%1$d VIDEO\'S OPSCHONEN</string>
+    <string name="scrub_media_n">%1$d BESTANDEN OPSCHONEN</string>
+    <string name="share_video_1">VIDEO DELEN</string>
+    <string name="share_video_n">%1$d VIDEO\'S DELEN</string>
+    <string name="share_media_n">%1$d BESTANDEN DELEN</string>
     <string name="cancel">ANNULEREN</string>
     <string name="about_mako">OVER MAKO</string>
     <string name="share_chooser_title">Opgeschoonde foto\'s delen via…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">Cameramodel</string>
     <string name="tag_timestamp">Tijdstempel</string>
     <string name="tag_software">Software</string>
+    <string name="tag_metadata_track">Ingesloten metadataspoor</string>
+    <string name="tag_video_timestamp">Opnametijd (wordt vervangen bij opschonen)</string>
     <string name="status_found">[GEVONDEN]</string>
     <string name="status_clean">[SCHOON] Geen gevoelige metadata gedetecteerd.</string>
     <string name="status_error">[FOUT] Kan bestand niet lezen.</string>
-    <string name="status_skip">Overslaan (Geen afbeelding)</string>
+    <string name="status_skip">Overslaan (Niet-ondersteund type)</string>
+    <string name="status_scrub_failed">[OVERGESLAGEN] %1$d bestand(en) konden niet worden opgeschoond zonder opnieuw te coderen.</string>
     <string name="milestone_title">MIJLPAAL BEREIKT!</string>
     <string name="milestone_msg">Je hebt meer dan %1$d foto\'s opgeschoond met Mako Scrubber!\nBevalt de app tot nu toe?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>

@@ -17,6 +17,12 @@
     <string name="scrubbing">クリーニング中…</string>
     <string name="share_1">写真を共有</string>
     <string name="share_n">%1$d枚の写真を共有</string>
+    <string name="scrub_video_1">1本の動画をクリーニング</string>
+    <string name="scrub_video_n">%1$d本の動画をクリーニング</string>
+    <string name="scrub_media_n">%1$d個のファイルをクリーニング</string>
+    <string name="share_video_1">動画を共有</string>
+    <string name="share_video_n">%1$d本の動画を共有</string>
+    <string name="share_media_n">%1$d個のファイルを共有</string>
     <string name="cancel">キャンセル</string>
     <string name="about_mako">MAKOについて</string>
     <string name="share_chooser_title">クリーニング済み写真を共有…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">カメラモデル</string>
     <string name="tag_timestamp">タイムスタンプ</string>
     <string name="tag_software">ソフトウェア</string>
+    <string name="tag_metadata_track">埋め込みメタデータトラック</string>
+    <string name="tag_video_timestamp">撮影時刻（クリーニング時に置き換え）</string>
     <string name="status_found">[検出]</string>
     <string name="status_clean">[クリーン] 機密メタデータは検出されませんでした。</string>
     <string name="status_error">[エラー] ファイルを読み込めませんでした。</string>
-    <string name="status_skip">スキップ (画像形式以外)</string>
+    <string name="status_skip">スキップ (非対応の形式)</string>
+    <string name="status_scrub_failed">[スキップ] %1$d 個のファイルは再エンコードなしでクリーニングできませんでした。</string>
     <string name="milestone_title">マイルストーン達成！</string>
     <string name="milestone_msg">Mako Scrubberで%1$d枚以上の写真をクリーニングしました！\nアプリの使い心地はいかがですか？</string>
     <string name="feedback_title">MAKO フィードバック</string>

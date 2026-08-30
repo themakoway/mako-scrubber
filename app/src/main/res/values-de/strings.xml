@@ -17,6 +17,12 @@
     <string name="scrubbing">WIRD GEREINIGT…</string>
     <string name="share_1">FOTO TEILEN</string>
     <string name="share_n">%1$d FOTOS TEILEN</string>
+    <string name="scrub_video_1">1 VIDEO REINIGEN</string>
+    <string name="scrub_video_n">%1$d VIDEOS REINIGEN</string>
+    <string name="scrub_media_n">%1$d DATEIEN REINIGEN</string>
+    <string name="share_video_1">VIDEO TEILEN</string>
+    <string name="share_video_n">%1$d VIDEOS TEILEN</string>
+    <string name="share_media_n">%1$d DATEIEN TEILEN</string>
     <string name="cancel">ZURÜCK</string>
     <string name="about_mako">ÜBER MAKO</string>
     <string name="share_chooser_title">Gereinigte Fotos teilen über…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">Kameramodell</string>
     <string name="tag_timestamp">Zeitstempel</string>
     <string name="tag_software">Software</string>
+    <string name="tag_metadata_track">Eingebettete Metadatenspur</string>
+    <string name="tag_video_timestamp">Aufnahmezeit (wird beim Reinigen ersetzt)</string>
     <string name="status_found">[GEFUNDEN]</string>
     <string name="status_clean">[SAUBER] Keine sensiblen Metadaten erkannt.</string>
     <string name="status_error">[FEHLER] Datei konnte nicht gelesen werden.</string>
-    <string name="status_skip">Überspringen (Kein Bildtyp)</string>
+    <string name="status_skip">Überspringen (Nicht unterstützter Typ)</string>
+    <string name="status_scrub_failed">[ÜBERSPRUNGEN] %1$d Datei(en) konnten nicht ohne Neukodierung gereinigt werden.</string>
     <string name="milestone_title">MEILENSTEIN ERREICHT!</string>
     <string name="milestone_msg">Sie haben über %1$d Fotos gereinigt! Gefällt Ihnen die App?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>

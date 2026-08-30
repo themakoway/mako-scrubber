@@ -17,6 +17,12 @@
     <string name="scrubbing">PULIZIA IN CORSO…</string>
     <string name="share_1">CONDIVIDI FOTO</string>
     <string name="share_n">CONDIVIDI %1$d FOTO</string>
+    <string name="scrub_video_1">PULISCI 1 VIDEO</string>
+    <string name="scrub_video_n">PULISCI %1$d VIDEO</string>
+    <string name="scrub_media_n">PULISCI %1$d FILE</string>
+    <string name="share_video_1">CONDIVIDI VIDEO</string>
+    <string name="share_video_n">CONDIVIDI %1$d VIDEO</string>
+    <string name="share_media_n">CONDIVIDI %1$d FILE</string>
     <string name="cancel">ANNULLA</string>
     <string name="about_mako">INFORMAZIONI SU MAKO</string>
     <string name="share_chooser_title">Condividi foto pulite tramite…</string>
@@ -28,10 +34,13 @@
     <string name="tag_model">Modello fotocamera</string>
     <string name="tag_timestamp">Timestamp</string>
     <string name="tag_software">Software</string>
+    <string name="tag_metadata_track">Traccia di metadati incorporata</string>
+    <string name="tag_video_timestamp">Ora di acquisizione (sostituita durante la pulizia)</string>
     <string name="status_found">[TROVATO]</string>
     <string name="status_clean">[PULITO] Nessun metadato sensibile rilevato.</string>
     <string name="status_error">[ERRORE] Impossibile leggere il file.</string>
-    <string name="status_skip">Salta (Tipo non immagine)</string>
+    <string name="status_skip">Salta (Tipo non supportato)</string>
+    <string name="status_scrub_failed">[IGNORATO] Impossibile pulire %1$d file senza ricodifica.</string>
     <string name="milestone_title">TRAGUARDO RAGGIUNTO!</string>
     <string name="milestone_msg">Hai pulito più di %1$d foto! Ti piace l\'app?</string>
     <string name="feedback_title">FEEDBACK MAKO</string>
