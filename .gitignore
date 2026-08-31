@@ -26,3 +26,6 @@ keystore.properties
 app/release/
 *.apk
 *.aab
+
+# Local code-review notes
+CODE_REVIEW_v2.0.md
