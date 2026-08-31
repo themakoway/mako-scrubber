@@ -16,6 +16,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.*
@@ -34,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
@@ -73,8 +76,13 @@ class MainActivity : ComponentActivity() {
         val isFirstLaunch = prefs.getBoolean("is_first_launch", true)
         val settings = (application as ScrubberApplication).settings
 
+        // The video-support "what's new" card is for people updating from a photo-only
+        // build; brand-new users get onboarding instead, so opt them out permanently.
+        if (isFirstLaunch) prefs.edit().putBoolean("seen_video_whatsnew", true).apply()
+        val showWhatsNewOnLaunch = !isFirstLaunch && !prefs.getBoolean("seen_video_whatsnew", false)
+
         if (hasStorageAccess(this)) {
-            deleteOldScrubbedImages(this)
+            deleteOldScrubbedMedia(this)
         }
 
         setContent {
@@ -88,6 +96,7 @@ class MainActivity : ComponentActivity() {
                     val threshold by settings.reviewThreshold.collectAsState(initial = 100)
 
                     var showReviewPrompt by remember { mutableStateOf(false) }
+                    var showWhatsNew by remember { mutableStateOf(showWhatsNewOnLaunch) }
                     val scope = rememberCoroutineScope()
 
                     LaunchedEffect(totalScrubbed, hasAsked, threshold) {
@@ -96,7 +105,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    if (showReviewPrompt) {
+                    if (showWhatsNew) {
+                        WhatsNewDialog(onAcknowledge = {
+                            prefs.edit().putBoolean("seen_video_whatsnew", true).apply()
+                            showWhatsNew = false
+                        })
+                    } else if (showReviewPrompt) {
                         MakoReviewDialog(
                             threshold = threshold,
                             onDismiss = {
@@ -213,11 +227,36 @@ fun MakoReviewDialog(
 }
 
 @Composable
+fun WhatsNewDialog(onAcknowledge: () -> Unit) {
+    // One-time card: only the button dismisses it, and only the button marks it seen —
+    // an accidental tap-outside must not make it vanish forever.
+    AlertDialog(
+        onDismissRequest = {},
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+        title = {
+            Text(
+                text = stringResource(R.string.whatsnew_title),
+                fontFamily = CauseFont,
+                fontWeight = FontWeight.Bold,
+                color = MakoCoral
+            )
+        },
+        text = { Text(stringResource(R.string.whatsnew_body), style = MaterialTheme.typography.bodyMedium) },
+        confirmButton = {
+            Button(
+                onClick = onAcknowledge,
+                colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
+            ) { Text(stringResource(R.string.whatsnew_dismiss), fontFamily = CauseFont, color = Color.White) }
+        }
+    )
+}
+
+@Composable
 fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
     var showOnboarding by remember { mutableStateOf(initialFirstLaunch) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var scrubbedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var scrubbedMedia by remember { mutableStateOf(ScrubbedMedia.EMPTY) }
 
     val prefs = context.getSharedPreferences("mako_prefs", Context.MODE_PRIVATE)
     var showScrubTip by remember { mutableStateOf(false) }
@@ -227,7 +266,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
         hasStorageAccess = grants.values.all { it }
-        if (hasStorageAccess) scrubbedImages = loadScrubbedImages(context)
+        if (hasStorageAccess) scrubbedMedia = loadScrubbedMedia(context)
     }
     LaunchedEffect(Unit) {
         if (!hasStorageAccess) {
@@ -240,16 +279,16 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
     val deleteRequestLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) {
-        scrubbedImages = loadScrubbedImages(context)
+        scrubbedMedia = loadScrubbedMedia(context)
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME && !showOnboarding && hasStorageAccess) {
-                val oldSize = scrubbedImages.size
-                scrubbedImages = loadScrubbedImages(context)
+                val oldSize = scrubbedMedia.size
+                scrubbedMedia = loadScrubbedMedia(context)
 
-                if (scrubbedImages.isNotEmpty() && oldSize == 0 && !prefs.getBoolean("has_seen_tip", false)) {
+                if (scrubbedMedia.uris.isNotEmpty() && oldSize == 0 && !prefs.getBoolean("has_seen_tip", false)) {
                     showScrubTip = true
                 }
             }
@@ -259,7 +298,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
     }
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
+        contract = ActivityResultContracts.PickMultipleVisualMedia()
     ) { uris ->
         if (uris.isNotEmpty()) {
             onActionTaken()
@@ -287,12 +326,17 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                 })
             } else {
                 DashboardContent(
-                    images = scrubbedImages,
-                    onScrubClick = { launcher.launch("image/*") },
-                    onRefresh = { scrubbedImages = loadScrubbedImages(context) },
+                    images = scrubbedMedia.uris,
+                    videoUris = scrubbedMedia.videoUris,
+                    onScrubClick = {
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                        )
+                    },
+                    onRefresh = { scrubbedMedia = loadScrubbedMedia(context) },
                     onImageClick = { uri ->
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "image/jpeg"
+                            type = context.contentResolver.getType(uri) ?: "*/*"
                             putExtra(Intent.EXTRA_STREAM, uri)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
@@ -314,7 +358,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                                     e.printStackTrace()
                                 }
                             }
-                            scrubbedImages = loadScrubbedImages(context)
+                            scrubbedMedia = loadScrubbedMedia(context)
                         }
                     },
                     showTip = showScrubTip,
@@ -363,6 +407,7 @@ fun OnboardingContent(onStart: () -> Unit) {
 @Composable
 fun DashboardContent(
     images: List<Uri>,
+    videoUris: Set<Uri>,
     onScrubClick: () -> Unit,
     onRefresh: () -> Unit,
     onImageClick: (Uri) -> Unit,
@@ -377,6 +422,9 @@ fun DashboardContent(
 
     var selectedUris by remember { mutableStateOf(setOf<Uri>()) }
     val isSelectionMode = selectedUris.isNotEmpty()
+
+    var showAbout by remember { mutableStateOf(false) }
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
 
     val infiniteTransition = rememberInfiniteTransition(label = "wobble")
     val rotation by infiniteTransition.animateFloat(
@@ -462,9 +510,8 @@ fun DashboardContent(
                     ) {
                         items(images) { uri ->
                             val isSelected = selectedUris.contains(uri)
-                            AsyncImage(
-                                model = uri,
-                                contentDescription = "Cleaned Photo",
+                            val isVideo = uri in videoUris
+                            Box(
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .clip(RoundedCornerShape(8.dp))
@@ -484,13 +531,51 @@ fun DashboardContent(
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             selectedUris = selectedUris + uri
                                         }
-                                    ),
-                                contentScale = ContentScale.Crop,
-                                alpha = if (isSelectionMode && !isSelected) 0.5f else 1.0f
-                            )
+                                    )
+                            ) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = if (isVideo) "Cleaned video" else "Cleaned photo",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop,
+                                    alpha = if (isSelectionMode && !isSelected) 0.5f else 1.0f
+                                )
+                                if (isVideo) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomStart)
+                                            .padding(4.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(Color.Black.copy(alpha = 0.55f))
+                                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Videocam,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            if (!isSelectionMode) {
+                Text(
+                    text = stringResource(R.string.about_mako_teaser),
+                    color = Color.Gray,
+                    fontFamily = CauseFont,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, bottom = 2.dp)
+                        .clickable { showAbout = true }
+                )
             }
         }
 
@@ -541,8 +626,9 @@ fun DashboardContent(
 
                     Button(
                         onClick = {
+                            val selectedTypes = selectedUris.mapNotNull { context.contentResolver.getType(it) }.toSet()
                             val shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                                type = "image/jpeg"
+                                type = selectedTypes.singleOrNull() ?: "*/*"
                                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(selectedUris))
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
@@ -564,8 +650,10 @@ fun DashboardContent(
 
 @Composable
 fun MainFooter() {
-    val uriHandler = LocalUriHandler.current
     val year = remember { Calendar.getInstance().get(Calendar.YEAR) }
+    var showAbout by remember { mutableStateOf(false) }
+
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
@@ -582,7 +670,7 @@ fun MainFooter() {
             style = MaterialTheme.typography.labelLarge,
             color = MakoCoral,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { uriHandler.openUri("https://www.makoway.app") }
+            modifier = Modifier.clickable { showAbout = true }
         )
     }
 }
@@ -592,73 +680,86 @@ private fun hasStorageAccess(context: Context): Boolean {
             ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 }
 
-private fun loadScrubbedImages(context: Context): List<Uri> {
-    val uris = mutableListOf<Uri>()
-    val projection = arrayOf(MediaStore.Images.Media._ID)
-    val selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-    } else {
-        "${MediaStore.Images.Media.DATA} LIKE ?"
-    }
-    val selectionArgs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        arrayOf("%Pictures/MakoScrub%")
-    } else {
-        arrayOf("%/MakoScrub/%")
-    }
+private val isScopedStorage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
-    try {
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            "${MediaStore.Images.Media.DATE_ADDED} DESC"
-        )?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                uris.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id))
-            }
-        }
-    } catch (e: Exception) { e.printStackTrace() }
-    return uris
+/** Path column + value that isolate the MakoScrub output folder in a given collection. */
+private fun scrubFolderFilter(picturesOrMovies: String): Pair<String, String> {
+    val column = if (isScopedStorage) MediaStore.MediaColumns.RELATIVE_PATH else MediaStore.MediaColumns.DATA
+    val value = if (isScopedStorage) "%$picturesOrMovies/MakoScrub%" else "%/MakoScrub/%"
+    return column to value
 }
 
-private fun deleteOldScrubbedImages(context: Context) {
+/** Scrubbed output for the dashboard: display order plus which URIs are videos. */
+data class ScrubbedMedia(val uris: List<Uri>, val videoUris: Set<Uri>) {
+    val size get() = uris.size
+
+    companion object {
+        val EMPTY = ScrubbedMedia(emptyList(), emptySet())
+    }
+}
+
+private fun loadScrubbedMedia(context: Context): ScrubbedMedia {
+    data class Entry(val uri: Uri, val dateAdded: Long, val id: Long, val isVideo: Boolean)
+    val entries = mutableListOf<Entry>()
+    val projection = arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_ADDED)
+
+    fun collect(collection: Uri, picturesOrMovies: String, isVideo: Boolean) {
+        val (column, value) = scrubFolderFilter(picturesOrMovies)
+        try {
+            context.contentResolver.query(collection, projection, "$column LIKE ?", arrayOf(value), null)?.use { cursor ->
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
+                    entries.add(
+                        Entry(ContentUris.withAppendedId(collection, id), cursor.getLong(dateColumn), id, isVideo)
+                    )
+                }
+            }
+        } catch (e: Exception) { e.printStackTrace() }
+    }
+
+    collect(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "Pictures", isVideo = false)
+    collect(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "Movies", isVideo = true)
+
+    // DATE_ADDED is whole seconds, so tie-break on _ID to keep a same-second batch stable.
+    val sorted = entries.sortedWith(compareByDescending<Entry> { it.dateAdded }.thenByDescending { it.id })
+    return ScrubbedMedia(sorted.map { it.uri }, sorted.filter { it.isVideo }.map { it.uri }.toSet())
+}
+
+private fun deleteOldScrubbedMedia(context: Context) {
     val thirtyDaysInMillis = 30L * 24 * 60 * 60 * 1000
     val cutoffTime = (System.currentTimeMillis() - thirtyDaysInMillis) / 1000
-    val selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ? AND ${MediaStore.Images.Media.DATE_ADDED} < ?"
-    } else {
-        "${MediaStore.Images.Media.DATA} LIKE ? AND ${MediaStore.Images.Media.DATE_ADDED} < ?"
-    }
-    val folderPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "%Pictures/MakoScrub%" else "%/MakoScrub/%"
-    val selectionArgs = arrayOf(folderPath, cutoffTime.toString())
 
-    val expectedCount = try {
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Images.Media._ID),
-            selection,
-            selectionArgs,
-            null
-        )?.use { it.count } ?: 0
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
+    fun purge(collection: Uri, picturesOrMovies: String) {
+        val (column, value) = scrubFolderFilter(picturesOrMovies)
+        val selection = "$column LIKE ? AND ${MediaStore.MediaColumns.DATE_ADDED} < ?"
+        val selectionArgs = arrayOf(value, cutoffTime.toString())
 
-    try {
-        val deletedCount = context.contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs)
-        if (deletedCount < expectedCount) {
-            Log.w(
-                "MakoScrubber",
-                "Auto-cleanup deleted $deletedCount of $expectedCount expired photos; " +
-                        "${expectedCount - deletedCount} may be un-owned by this install and were left behind."
-            )
+        val expectedCount = try {
+            context.contentResolver.query(
+                collection, arrayOf(MediaStore.MediaColumns._ID), selection, selectionArgs, null
+            )?.use { it.count } ?: 0
+        } catch (e: Exception) {
+            e.printStackTrace()
+            0
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Log.w("MakoScrubber", "Auto-cleanup failed entirely; $expectedCount expired photos were left behind.", e)
+
+        try {
+            val deletedCount = context.contentResolver.delete(collection, selection, selectionArgs)
+            if (deletedCount < expectedCount) {
+                Log.w(
+                    "MakoScrubber",
+                    "Auto-cleanup deleted $deletedCount of $expectedCount expired files; " +
+                            "${expectedCount - deletedCount} may be un-owned by this install and were left behind."
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.w("MakoScrubber", "Auto-cleanup failed entirely; $expectedCount expired files were left behind.", e)
+        }
     }
+
+    purge(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "Pictures")
+    purge(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "Movies")
 }

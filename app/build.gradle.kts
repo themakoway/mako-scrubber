@@ -20,8 +20,8 @@ android {
         applicationId = "com.mako.makoscrubber"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.5"
+        versionCode = 10
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -78,6 +78,7 @@ dependencies {
     testImplementation(libs.junit)
     implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-video:2.6.0")
     implementation("androidx.compose.material:material-icons-extended")
 
     androidTestImplementation(libs.androidx.junit)

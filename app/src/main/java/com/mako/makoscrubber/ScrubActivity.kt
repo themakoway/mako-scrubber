@@ -9,10 +9,13 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +46,7 @@ import com.mako.makoscrubber.ui.theme.MakoCoral
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.OutputStream
+import java.io.File
 import java.util.Calendar
 
 class ScrubActivity : ComponentActivity() {
@@ -52,7 +54,7 @@ class ScrubActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val imageUris = mutableListOf<Uri>()
+        val mediaUris = mutableListOf<Uri>()
 
         try {
             when (intent.action) {
@@ -63,7 +65,7 @@ class ScrubActivity : ComponentActivity() {
                         @Suppress("DEPRECATION")
                         intent.getParcelableExtra(Intent.EXTRA_STREAM)
                     }
-                    uri?.let { imageUris.add(it) }
+                    uri?.let { mediaUris.add(it) }
                 }
                 Intent.ACTION_SEND_MULTIPLE -> {
                     val uris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -72,10 +74,10 @@ class ScrubActivity : ComponentActivity() {
                         @Suppress("DEPRECATION")
                         intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                     }
-                    uris?.let { imageUris.addAll(it) }
+                    uris?.let { mediaUris.addAll(it) }
                 }
                 else -> {
-                    intent.data?.let { imageUris.add(it) }
+                    intent.data?.let { mediaUris.add(it) }
                 }
             }
         } catch (e: Exception) {
@@ -91,7 +93,7 @@ class ScrubActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ScrubAuditScreen(imageUris, isSharedIntent)
+                    ScrubAuditScreen(mediaUris, isSharedIntent)
                 }
             }
         }
@@ -99,16 +101,26 @@ class ScrubActivity : ComponentActivity() {
 }
 
 @Composable
-fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
+fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val settings = (context.applicationContext as ScrubberApplication).settings
 
+    val videoInputCount = remember(mediaUris) { mediaUris.count { context.isVideo(it) } }
+    val allVideoInput = mediaUris.isNotEmpty() && videoInputCount == mediaUris.size
+    val mixedInput = videoInputCount > 0 && videoInputCount < mediaUris.size
+
     val analyzingText = stringResource(R.string.analyzing)
     var auditResults by remember { mutableStateOf(analyzingText) }
     var scrubbedUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isScrubbing by remember { mutableStateOf(false) }
+
+    val resultKinds = remember(scrubbedUris) {
+        scrubbedUris.mapNotNull { context.contentResolver.getType(it)?.substringBefore('/') }
+    }
+    val resultAllVideo = resultKinds.isNotEmpty() && resultKinds.all { it == "video" }
+    val resultMixed = resultKinds.toSet().size > 1
     val scrollState = rememberScrollState()
 
     val initialTitle = stringResource(R.string.initial_audit)
@@ -130,24 +142,38 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
     var showLargeWarning by remember { mutableStateOf(false) }
 
     val runScrub: () -> Unit = {
-        if (!isScrubbing && imageUris.isNotEmpty()) {
+        if (!isScrubbing && mediaUris.isNotEmpty()) {
             isScrubbing = true
             scope.launch {
-                val results = withContext(Dispatchers.IO) {
+                val (results, failures) = withContext(Dispatchers.IO) {
                     val r = mutableListOf<Uri>()
-                    imageUris.forEach { uri ->
-                        scrubAndSaveImage(context, uri, estimatedSampleSize(context, uri))?.let { r.add(it) }
+                    var failed = 0
+                    mediaUris.forEach { uri ->
+                        val out = if (context.isVideo(uri)) {
+                            scrubAndSaveVideo(context, uri)
+                        } else {
+                            scrubAndSaveImage(context, uri, estimatedSampleSize(context, uri))
+                        }
+                        if (out != null) r.add(out) else failed++
                     }
-                    r
+                    r to failed
                 }
 
                 if (results.isNotEmpty()) {
                     settings.incrementScrubbedCount(results.size)
                 }
 
-                val verification = generateAuditReport(context, results, verificationTitle)
+                val verification = generateAuditReport(context, results, verificationTitle, isVerification = true)
                 scrubbedUris = results
-                auditResults = "$auditResults\n---\n$verification"
+                auditResults = buildString {
+                    append(auditResults)
+                    append("\n---\n")
+                    append(verification)
+                    if (failures > 0) {
+                        append("\n")
+                        append(context.getString(R.string.status_scrub_failed, failures))
+                    }
+                }
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 isScrubbing = false
             }
@@ -157,16 +183,16 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
     val startScrub: () -> Unit = {
         scope.launch {
             val oversized = withContext(Dispatchers.IO) {
-                imageUris.count { estimatedSampleSize(context, it) > 1 }
+                mediaUris.count { !context.isVideo(it) && estimatedSampleSize(context, it) > 1 }
             }
             if (oversized > 0) showLargeWarning = true else runScrub()
         }
     }
 
-    LaunchedEffect(imageUris, hasWriteAccess) {
-        if (imageUris.isNotEmpty()) {
+    LaunchedEffect(mediaUris, hasWriteAccess) {
+        if (mediaUris.isNotEmpty()) {
             auditResults = withContext(Dispatchers.IO) {
-                generateAuditReport(context, imageUris, initialTitle)
+                generateAuditReport(context, mediaUris, initialTitle)
             }
             if (autoScrub && hasWriteAccess && scrubbedUris.isEmpty() && !isScrubbing) {
                 startScrub()
@@ -231,7 +257,7 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
                             onClick = {
                                 if (!hasWriteAccess) {
                                     permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                } else if (imageUris.isNotEmpty() && !isScrubbing) {
+                                } else if (mediaUris.isNotEmpty() && !isScrubbing) {
                                     startScrub()
                                 }
                             },
@@ -240,24 +266,32 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
                             modifier = Modifier.weight(1f).height(44.dp),
                             contentPadding = PaddingValues(vertical = 0.dp)
                         ) {
-                            val label = if (imageUris.size == 1)
-                                stringResource(R.string.scrub_1)
-                            else
-                                stringResource(R.string.scrub_n, imageUris.size)
+                            val label = when {
+                                mediaUris.size == 1 && allVideoInput -> stringResource(R.string.scrub_video_1)
+                                mediaUris.size == 1 -> stringResource(R.string.scrub_1)
+                                mixedInput -> stringResource(R.string.scrub_media_n, mediaUris.size)
+                                allVideoInput -> stringResource(R.string.scrub_video_n, mediaUris.size)
+                                else -> stringResource(R.string.scrub_n, mediaUris.size)
+                            }
 
                             Text(if (isScrubbing) stringResource(R.string.scrubbing) else label, color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
                         }
                     } else {
                         Button(
                             onClick = {
+                                val shareType = when {
+                                    resultMixed -> "*/*"
+                                    resultAllVideo -> "video/mp4"
+                                    else -> "image/jpeg"
+                                }
                                 val shareIntent = if (scrubbedUris.size == 1) {
                                     Intent(Intent.ACTION_SEND).apply {
-                                        type = "image/jpeg"
+                                        type = shareType
                                         putExtra(Intent.EXTRA_STREAM, scrubbedUris[0])
                                     }
                                 } else {
                                     Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                                        type = "image/jpeg"
+                                        type = shareType
                                         putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(scrubbedUris))
                                     }
                                 }
@@ -268,10 +302,13 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
                             modifier = Modifier.weight(1f).height(44.dp),
                             contentPadding = PaddingValues(vertical = 0.dp)
                         ) {
-                            val label = if (scrubbedUris.size == 1)
-                                stringResource(R.string.share_1)
-                            else
-                                stringResource(R.string.share_n, scrubbedUris.size)
+                            val label = when {
+                                scrubbedUris.size == 1 && resultAllVideo -> stringResource(R.string.share_video_1)
+                                scrubbedUris.size == 1 -> stringResource(R.string.share_1)
+                                resultMixed -> stringResource(R.string.share_media_n, scrubbedUris.size)
+                                resultAllVideo -> stringResource(R.string.share_video_n, scrubbedUris.size)
+                                else -> stringResource(R.string.share_n, scrubbedUris.size)
+                            }
                             Text(label, color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
                         }
                     }
@@ -291,15 +328,20 @@ fun ScrubAuditScreen(imageUris: List<Uri>, autoScrub: Boolean) {
     }
 }
 
-private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title: String): String = withContext(Dispatchers.IO) {
+private suspend fun generateAuditReport(
+    context: Context,
+    uris: List<Uri>,
+    title: String,
+    isVerification: Boolean = false
+): String = withContext(Dispatchers.IO) {
     val report = StringBuilder()
     val fileLabel = if (uris.size == 1) context.getString(R.string.label_file) else context.getString(R.string.label_files)
 
     report.append("$title (${uris.size} $fileLabel):\n\n")
 
     uris.forEachIndexed { index, uri ->
-        val mimeType = context.contentResolver.getType(uri)
-        if (mimeType?.startsWith("image/") == true) {
+        val kind = context.mediaKind(uri)
+        if (kind == "image") {
             report.append(context.getString(R.string.label_file_header, index + 1) + "\n")
             try {
                 context.contentResolver.openInputStream(uri).use { stream ->
@@ -356,6 +398,80 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
                 e.printStackTrace()
                 report.append(context.getString(R.string.status_error) + "\n")
             }
+        } else if (kind == "video") {
+            report.append(context.getString(R.string.label_file_header, index + 1) + "\n")
+            try {
+                val retriever = MediaMetadataRetriever()
+                try {
+                    retriever.setDataSource(context, uri)
+                    val found = context.getString(R.string.status_found)
+                    var foundCount = 0
+
+                    val location = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
+                    if (!location.isNullOrBlank()) {
+                        val pretty = formatIso6709(location) ?: location.trimEnd('/')
+                        report.append("$found ${context.getString(R.string.tag_gps)}: $pretty\n")
+                        foundCount++
+                    }
+
+                    // Same kind of free-text identity tags the image path scans EXIF for.
+                    val textTags = listOf(
+                        MediaMetadataRetriever.METADATA_KEY_AUTHOR to "Author",
+                        MediaMetadataRetriever.METADATA_KEY_ARTIST to "Artist",
+                        MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST to "Album Artist",
+                        MediaMetadataRetriever.METADATA_KEY_TITLE to "Title",
+                        MediaMetadataRetriever.METADATA_KEY_COMPOSER to "Composer",
+                        MediaMetadataRetriever.METADATA_KEY_WRITER to "Writer",
+                        MediaMetadataRetriever.METADATA_KEY_ALBUM to "Album",
+                        MediaMetadataRetriever.METADATA_KEY_GENRE to "Genre"
+                    )
+                    textTags.forEach { (key, label) ->
+                        val value = retriever.extractMetadata(key)
+                        if (!value.isNullOrBlank()) {
+                            report.append("$found $label: ${value.take(20)}\n")
+                            foundCount++
+                        }
+                    }
+
+                    val fps = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)
+                    if (!fps.isNullOrBlank()) {
+                        val n = fps.toFloatOrNull()?.let { "%.0f".format(it) } ?: fps
+                        report.append("$found Capture Frame Rate: $n fps\n")
+                        foundCount++
+                    }
+
+                    val trackMimes = videoMetadataTrackMimes(context, uri)
+                    if (trackMimes.isNotEmpty()) {
+                        report.append("$found ${context.getString(R.string.tag_metadata_track)} (${trackMimes.joinToString(", ")})\n")
+                        report.append("    ${context.getString(R.string.tag_metadata_track_desc)}\n")
+                        foundCount++
+                    }
+
+                    // Capture time: the remux always restamps this to "now", so it is not a
+                    // finding. Show it (with its value) as a note on the initial audit only,
+                    // never counted, so the verification report can read clean.
+                    if (!isVerification) {
+                        val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
+                        if (!date.isNullOrBlank()) {
+                            report.append("${context.getString(R.string.status_note)} ${context.getString(R.string.tag_video_timestamp)} — ${formatVideoDate(date)}\n")
+                        }
+                    }
+
+                    if (foundCount == 0) {
+                        report.append(context.getString(R.string.status_clean) + "\n")
+                    }
+                    // Samples are copied byte-for-byte, so anything the encoder buried inside
+                    // the bitstream (H.264/HEVC SEI, burned-in overlays) is not inspected.
+                    if (isVerification) {
+                        report.append("${context.getString(R.string.status_note)} ${context.getString(R.string.tag_sei_note)}\n")
+                    }
+                } finally {
+                    retriever.release()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                report.append(context.getString(R.string.status_error) + "\n")
+            }
         } else {
             report.append(context.getString(R.string.label_file_header, index + 1) + " " + context.getString(R.string.status_skip) + "\n")
         }
@@ -366,9 +482,10 @@ private suspend fun generateAuditReport(context: Context, uris: List<Uri>, title
 
 @Composable
 fun ScrubFooter() {
-    val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
     val year = remember { Calendar.getInstance().get(Calendar.YEAR) }
+    var showAbout by remember { mutableStateOf(false) }
+
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
 
     Row(
         modifier = Modifier
@@ -387,11 +504,53 @@ fun ScrubFooter() {
             style = MaterialTheme.typography.labelLarge,
             color = MakoCoral,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable {
-                uriHandler.openUri("https://www.makoway.app")
-            }
+            modifier = Modifier.clickable { showAbout = true }
         )
     }
+}
+
+private val VIDEO_EXTS = setOf("mp4", "mov", "m4v", "3gp", "3gpp", "webm", "mkv", "ts", "avi")
+private val IMAGE_EXTS = setOf("jpg", "jpeg", "png", "webp", "heic", "heif", "gif", "bmp", "dng")
+
+/**
+ * "video" / "image" / "other". Prefers the content type; falls back to the file extension
+ * (from the display name, then the URI string) when a provider reports a generic type like
+ * `application/octet-stream` — some file managers and messaging apps do this for videos.
+ */
+private fun Context.mediaKind(uri: Uri): String {
+    when (contentResolver.getType(uri)?.substringBefore('/')) {
+        "video" -> return "video"
+        "image" -> return "image"
+    }
+    val name = try {
+        contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+            if (it.moveToFirst()) it.getString(0) else null
+        }
+    } catch (e: Exception) {
+        null
+    }
+    return when ((name ?: uri.toString()).substringAfterLast('.', "").lowercase()) {
+        in VIDEO_EXTS -> "video"
+        in IMAGE_EXTS -> "image"
+        else -> "other"
+    }
+}
+
+private fun Context.isVideo(uri: Uri): Boolean = mediaKind(uri) == "video"
+
+/** ISO-6709 ("+37.7749-122.4194/") -> "37.7749, -122.4194"; null if it doesn't parse. */
+private fun formatIso6709(raw: String): String? {
+    val m = Regex("([+-]\\d+(?:\\.\\d+)?)([+-]\\d+(?:\\.\\d+)?)").find(raw) ?: return null
+    val lat = m.groupValues[1].toDoubleOrNull() ?: return null
+    val lon = m.groupValues[2].toDoubleOrNull() ?: return null
+    return "%.4f, %.4f".format(lat, lon)
+}
+
+/** MediaMetadataRetriever DATE ("20240115T143022.000Z") -> "2024-01-15 14:30:22". */
+private fun formatVideoDate(raw: String): String {
+    val g = Regex("(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})(\\d{2})").find(raw)?.groupValues
+        ?: return raw.take(24)
+    return "${g[1]}-${g[2]}-${g[3]} ${g[4]}:${g[5]}:${g[6]}"
 }
 
 private fun estimatedSampleSize(context: Context, uri: Uri): Int {
@@ -438,22 +597,50 @@ private suspend fun scrubAndSaveImage(context: Context, uri: Uri, startSampleSiz
         if (bitmap == null) return@withContext null
 
         val fileName = "MakoScrub_${System.currentTimeMillis()}.jpg"
+        val isQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        val preQTarget = if (!isQ) {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "MakoScrub"
+            ).apply { mkdirs() }.let { File(it, fileName) }
+        } else null
+
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (isQ) {
                 put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MakoScrub")
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            } else {
+                // Match the video path: file it under Pictures/MakoScrub so the dashboard
+                // listing and the 30-day auto-cleanup can find it pre-Q.
+                put(MediaStore.MediaColumns.DATA, preQTarget!!.absolutePath)
             }
         }
 
-        val outUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-        outUri?.let { destination ->
-            val outputStream: OutputStream? = context.contentResolver.openOutputStream(destination)
-            outputStream?.use {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, it)
-            }
-            destination
+        val resolver = context.contentResolver
+        val destination = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@withContext null
+
+        val wrote = try {
+            resolver.openOutputStream(destination)?.use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+            } ?: false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
+        if (!wrote) {
+            resolver.delete(destination, null, null)
+            return@withContext null
+        }
+
+        if (isQ) {
+            values.clear()
+            values.put(MediaStore.Images.Media.IS_PENDING, 0)
+            resolver.update(destination, values, null, null)
+        }
+        destination
     } catch (e: Exception) {
         e.printStackTrace()
         null
