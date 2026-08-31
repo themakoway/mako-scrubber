@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">GET STARTED</string>
     <string name="clean_new">CLEAN NEW PHOTOS &amp; VIDEOS</string>
@@ -25,6 +25,12 @@
     <string name="share_media_n">SHARE %1$d FILES</string>
     <string name="cancel">CANCEL</string>
     <string name="about_mako">ABOUT MAKO</string>
+    <!-- TODO: placeholder copy — refine wording, then translate title/teaser/body into the 9 locale files and drop the tools:ignore. -->
+    <string name="about_mako_title" tools:ignore="MissingTranslation">THE MAKO WAY</string>
+    <string name="about_mako_teaser" tools:ignore="MissingTranslation">Mako Scrubber is free — here\'s why.</string>
+    <string name="about_mako_visit">VISIT MAKOWAY.APP</string>
+    <string name="about_mako_body" tools:ignore="MissingTranslation">Mako Scrubber is free — no ads, no account, no internet permission. That\'s deliberate.\n\nIt comes from the team behind The Mako Way: a small set of tools that each do one job, work offline, and keep your data on your device.\n\nIf Scrubber earned a place on your phone, the rest are built the same way. The full list is at makoway.app.</string>
+    <string name="close">CLOSE</string>
     <string name="share_chooser_title">Share Clean Photos via…</string>
     <string name="label_file">file</string>
     <string name="label_files">files</string>

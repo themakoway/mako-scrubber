@@ -1,0 +1,57 @@
+package com.mako.makoscrubber
+
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import com.mako.makoscrubber.ui.theme.CauseFont
+import com.mako.makoscrubber.ui.theme.MakoCoral
+
+@Composable
+fun AboutMakoDialog(onDismiss: () -> Unit) {
+    val uriHandler = LocalUriHandler.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.about_mako_title),
+                fontFamily = CauseFont,
+                fontWeight = FontWeight.Bold,
+                color = MakoCoral
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.about_mako_body),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    uriHandler.openUri("https://www.makoway.app")
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
+            ) {
+                Text(stringResource(R.string.about_mako_visit), fontFamily = CauseFont, color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.close), fontFamily = CauseFont, color = Color.Gray)
+            }
+        }
+    )
+}

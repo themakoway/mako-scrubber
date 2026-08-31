@@ -25,6 +25,8 @@
     <string name="share_media_n">PARTAGER %1$d FICHIERS</string>
     <string name="cancel">ANNULER</string>
     <string name="about_mako">À PROPOS DE MAKO</string>
+    <string name="about_mako_visit">OUVRIR MAKOWAY.APP</string>
+    <string name="close">FERMER</string>
     <string name="share_chooser_title">Partager les photos via…</string>
     <string name="label_file">fichier</string>
     <string name="label_files">fichiers</string>

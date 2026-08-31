@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -477,9 +476,10 @@ private suspend fun generateAuditReport(
 
 @Composable
 fun ScrubFooter() {
-    val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
     val year = remember { Calendar.getInstance().get(Calendar.YEAR) }
+    var showAbout by remember { mutableStateOf(false) }
+
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
 
     Row(
         modifier = Modifier
@@ -498,9 +498,7 @@ fun ScrubFooter() {
             style = MaterialTheme.typography.labelLarge,
             color = MakoCoral,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable {
-                uriHandler.openUri("https://www.makoway.app")
-            }
+            modifier = Modifier.clickable { showAbout = true }
         )
     }
 }

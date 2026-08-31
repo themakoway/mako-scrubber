@@ -25,6 +25,8 @@
     <string name="share_media_n">CONDIVIDI %1$d FILE</string>
     <string name="cancel">ANNULLA</string>
     <string name="about_mako">INFORMAZIONI SU MAKO</string>
+    <string name="about_mako_visit">APRI MAKOWAY.APP</string>
+    <string name="close">CHIUDI</string>
     <string name="share_chooser_title">Condividi foto pulite tramite…</string>
     <string name="label_file">file</string>
     <string name="label_files">file</string>

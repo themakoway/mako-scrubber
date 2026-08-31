@@ -384,6 +384,9 @@ fun DashboardContent(
     var selectedUris by remember { mutableStateOf(setOf<Uri>()) }
     val isSelectionMode = selectedUris.isNotEmpty()
 
+    var showAbout by remember { mutableStateOf(false) }
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
+
     val infiniteTransition = rememberInfiniteTransition(label = "wobble")
     val rotation by infiniteTransition.animateFloat(
         initialValue = -1.5f,
@@ -523,6 +526,20 @@ fun DashboardContent(
                     }
                 }
             }
+
+            if (!isSelectionMode) {
+                Text(
+                    text = stringResource(R.string.about_mako_teaser),
+                    color = Color.Gray,
+                    fontFamily = CauseFont,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, bottom = 2.dp)
+                        .clickable { showAbout = true }
+                )
+            }
         }
 
         AnimatedVisibility(
@@ -596,8 +613,10 @@ fun DashboardContent(
 
 @Composable
 fun MainFooter() {
-    val uriHandler = LocalUriHandler.current
     val year = remember { Calendar.getInstance().get(Calendar.YEAR) }
+    var showAbout by remember { mutableStateOf(false) }
+
+    if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
@@ -614,7 +633,7 @@ fun MainFooter() {
             style = MaterialTheme.typography.labelLarge,
             color = MakoCoral,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { uriHandler.openUri("https://www.makoway.app") }
+            modifier = Modifier.clickable { showAbout = true }
         )
     }
 }
