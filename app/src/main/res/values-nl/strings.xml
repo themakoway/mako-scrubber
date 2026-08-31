@@ -25,8 +25,9 @@
     <string name="share_media_n">%1$d BESTANDEN DELEN</string>
     <string name="cancel">ANNULEREN</string>
     <string name="about_mako">OVER MAKO</string>
-    <string name="about_mako_visit">MAKOWAY.APP OPENEN</string>
+    <string name="about_mako_visit">ANDERE APPS BEKIJKEN</string>
     <string name="close">SLUITEN</string>
+    <string name="whatsnew_dismiss">BEGREPEN</string>
     <string name="share_chooser_title">Opgeschoonde foto\'s delen via…</string>
     <string name="label_file">bestand</string>
     <string name="label_files">bestanden</string>

@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import coil.compose.AsyncImage
@@ -75,6 +76,11 @@ class MainActivity : ComponentActivity() {
         val isFirstLaunch = prefs.getBoolean("is_first_launch", true)
         val settings = (application as ScrubberApplication).settings
 
+        // The video-support "what's new" card is for people updating from a photo-only
+        // build; brand-new users get onboarding instead, so opt them out permanently.
+        if (isFirstLaunch) prefs.edit().putBoolean("seen_video_whatsnew", true).apply()
+        val showWhatsNewOnLaunch = !isFirstLaunch && !prefs.getBoolean("seen_video_whatsnew", false)
+
         if (hasStorageAccess(this)) {
             deleteOldScrubbedMedia(this)
         }
@@ -90,6 +96,7 @@ class MainActivity : ComponentActivity() {
                     val threshold by settings.reviewThreshold.collectAsState(initial = 100)
 
                     var showReviewPrompt by remember { mutableStateOf(false) }
+                    var showWhatsNew by remember { mutableStateOf(showWhatsNewOnLaunch) }
                     val scope = rememberCoroutineScope()
 
                     LaunchedEffect(totalScrubbed, hasAsked, threshold) {
@@ -98,7 +105,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    if (showReviewPrompt) {
+                    if (showWhatsNew) {
+                        WhatsNewDialog(onAcknowledge = {
+                            prefs.edit().putBoolean("seen_video_whatsnew", true).apply()
+                            showWhatsNew = false
+                        })
+                    } else if (showReviewPrompt) {
                         MakoReviewDialog(
                             threshold = threshold,
                             onDismiss = {
@@ -210,6 +222,31 @@ fun MakoReviewDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.btn_maybe_later), fontFamily = CauseFont, color = Color.Gray)
             }
+        }
+    )
+}
+
+@Composable
+fun WhatsNewDialog(onAcknowledge: () -> Unit) {
+    // One-time card: only the button dismisses it, and only the button marks it seen —
+    // an accidental tap-outside must not make it vanish forever.
+    AlertDialog(
+        onDismissRequest = {},
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+        title = {
+            Text(
+                text = stringResource(R.string.whatsnew_title),
+                fontFamily = CauseFont,
+                fontWeight = FontWeight.Bold,
+                color = MakoCoral
+            )
+        },
+        text = { Text(stringResource(R.string.whatsnew_body), style = MaterialTheme.typography.bodyMedium) },
+        confirmButton = {
+            Button(
+                onClick = onAcknowledge,
+                colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
+            ) { Text(stringResource(R.string.whatsnew_dismiss), fontFamily = CauseFont, color = Color.White) }
         }
     )
 }

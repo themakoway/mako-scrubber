@@ -1,7 +1,9 @@
 package com.mako.makoscrubber
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -12,8 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.mako.makoscrubber.ui.theme.CauseFont
 import com.mako.makoscrubber.ui.theme.MakoCoral
 
@@ -22,6 +26,13 @@ fun AboutMakoDialog(onDismiss: () -> Unit) {
     val uriHandler = LocalUriHandler.current
     AlertDialog(
         onDismissRequest = onDismiss,
+        icon = {
+            Image(
+                painter = painterResource(R.drawable.ic_mako),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp)
+            )
+        },
         title = {
             Text(
                 text = stringResource(R.string.about_mako_title),

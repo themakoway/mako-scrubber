@@ -25,12 +25,16 @@
     <string name="share_media_n">SHARE %1$d FILES</string>
     <string name="cancel">CANCEL</string>
     <string name="about_mako">ABOUT MAKO</string>
-    <!-- TODO: placeholder copy — refine wording, then translate title/teaser/body into the 9 locale files and drop the tools:ignore. -->
-    <string name="about_mako_title" tools:ignore="MissingTranslation">THE MAKO WAY</string>
-    <string name="about_mako_teaser" tools:ignore="MissingTranslation">Mako Scrubber is free — here\'s why.</string>
-    <string name="about_mako_visit">VISIT MAKOWAY.APP</string>
-    <string name="about_mako_body" tools:ignore="MissingTranslation">Mako Scrubber is free — no ads, no account, no internet permission. That\'s deliberate.\n\nIt comes from the team behind The Mako Way: a small set of tools that each do one job, work offline, and keep your data on your device.\n\nIf Scrubber earned a place on your phone, the rest are built the same way. The full list is at makoway.app.</string>
+    <!-- TODO: refine wording, then translate title/teaser/body into the 9 locale files and drop the tools:ignore. -->
+    <string name="about_mako_title" tools:ignore="MissingTranslation">Why is this app free?</string>
+    <string name="about_mako_teaser" tools:ignore="MissingTranslation">Why is this app free?</string>
+    <string name="about_mako_visit">SEE OTHER APPS</string>
+    <string name="about_mako_body" tools:ignore="MissingTranslation">Because privacy shouldn’t be a subscription model. Scrubber doesn’t collect data, show ads, or even request internet access.\n\nIt’s part of a small family of offline-first tools designed to stay fast, independent, and secure. Explore the rest at makoway.app.</string>
     <string name="close">CLOSE</string>
+    <!-- TODO: v2.0 "what's new" card — refine copy, then translate title/body into the 9 locale files and drop the tools:ignore. -->
+    <string name="whatsnew_title" tools:ignore="MissingTranslation">NOW SCRUBBING VIDEO</string>
+    <string name="whatsnew_body" tools:ignore="MissingTranslation">Mako Scrubber now strips location, device, and timestamp metadata from videos — MP4 and MOV — just like it does for photos.\n\nThere\'s no quality loss: the video is repackaged, not re-encoded. Share a video to Mako Scrubber, or pick one here, to try it.</string>
+    <string name="whatsnew_dismiss">GOT IT</string>
     <string name="share_chooser_title">Share Clean Photos via…</string>
     <string name="label_file">file</string>
     <string name="label_files">files</string>
