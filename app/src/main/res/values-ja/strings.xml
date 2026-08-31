@@ -26,6 +26,14 @@
     <string name="cancel">キャンセル</string>
     <string name="about_mako">MAKOについて</string>
     <string name="close">閉じる</string>
+    <string name="about_mako_title">このアプリはなぜ無料なの？</string>
+    <string name="about_mako_teaser">このアプリはなぜ無料なの？</string>
+    <string name="about_mako_visit">他のアプリを見る</string>
+    <string name="about_mako_body">プライバシーはサブスクにすべきものではないからです。Scrubber はデータを収集せず、広告を表示せず、インターネットへのアクセスすら要求しません。\n\nこれは、高速・独立・安全であり続けることを目指した、オフラインファーストの小さなツール群の一つです。ほかのアプリは makoway.app でご覧いただけます。</string>
+    <string name="whatsnew_title">動画にも対応しました</string>
+    <string name="whatsnew_body">Mako Scrubber は写真と同じように、動画（MP4・MOV）からも位置情報・端末・タイムスタンプのメタデータを削除できるようになりました。\n\n画質は劣化しません。動画は再エンコードではなく、コンテナを作り直すだけです。Mako Scrubber に動画を共有するか、ここから選んでお試しください。</string>
+    <string name="whatsnew_dismiss">OK</string>
+    <string name="tag_sei_note">ピクセル単位のデータやストリーム内（SEI）データは検査されません。</string>
     <string name="share_chooser_title">クリーニング済み写真を共有…</string>
     <string name="label_file">ファイル</string>
     <string name="label_files">ファイル</string>

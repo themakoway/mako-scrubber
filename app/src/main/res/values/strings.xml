@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Mako Scrubber</string>
     <string name="get_started">GET STARTED</string>
     <string name="clean_new">CLEAN NEW PHOTOS &amp; VIDEOS</string>
@@ -25,16 +25,14 @@
     <string name="share_media_n">SHARE %1$d FILES</string>
     <string name="cancel">CANCEL</string>
     <string name="about_mako">ABOUT MAKO</string>
-    <!-- TODO: refine wording, then translate title/teaser/body into the 9 locale files and drop the tools:ignore. -->
-    <string name="about_mako_title" tools:ignore="MissingTranslation">Why is this app free?</string>
-    <string name="about_mako_teaser" tools:ignore="MissingTranslation">Why is this app free?</string>
-    <string name="about_mako_visit" tools:ignore="MissingTranslation">SEE OTHER APPS</string>
-    <string name="about_mako_body" tools:ignore="MissingTranslation">Because privacy shouldn’t be a subscription model. Scrubber doesn’t collect data, show ads, or even request internet access.\n\nIt’s part of a small family of offline-first tools designed to stay fast, independent, and secure. Explore the rest at makoway.app.</string>
+    <string name="about_mako_title">Why is this app free?</string>
+    <string name="about_mako_teaser">Why is this app free?</string>
+    <string name="about_mako_visit">SEE OTHER APPS</string>
+    <string name="about_mako_body">Because privacy shouldn’t be a subscription model. Scrubber doesn’t collect data, show ads, or even request internet access.\n\nIt’s part of a small family of offline-first tools designed to stay fast, independent, and secure. Explore the rest at makoway.app.</string>
     <string name="close">CLOSE</string>
-    <!-- TODO: v2.0 "what's new" card — refine copy, then translate title/body into the 9 locale files and drop the tools:ignore. -->
-    <string name="whatsnew_title" tools:ignore="MissingTranslation">NOW SCRUBBING VIDEO</string>
-    <string name="whatsnew_body" tools:ignore="MissingTranslation">Mako Scrubber now strips location, device, and timestamp metadata from videos — MP4 and MOV — just like it does for photos.\n\nThere\'s no quality loss: the video is repackaged, not re-encoded. Share a video to Mako Scrubber, or pick one here, to try it.</string>
-    <string name="whatsnew_dismiss" tools:ignore="MissingTranslation">GOT IT</string>
+    <string name="whatsnew_title">NOW SCRUBBING VIDEO</string>
+    <string name="whatsnew_body">Mako Scrubber now strips location, device, and timestamp metadata from videos — MP4 and MOV — just like it does for photos.\n\nThere\'s no quality loss: the video is repackaged, not re-encoded. Share a video to Mako Scrubber, or pick one here, to try it.</string>
+    <string name="whatsnew_dismiss">GOT IT</string>
     <string name="share_chooser_title">Share Clean Photos via…</string>
     <string name="label_file">file</string>
     <string name="label_files">files</string>
@@ -49,7 +47,7 @@
     <string name="tag_video_timestamp">Capture Time (replaced on scrub)</string>
     <string name="status_found">[FOUND]</string>
     <string name="status_note">[NOTE]</string>
-    <string name="tag_sei_note" tools:ignore="MissingTranslation">Pixel-level and in-stream (SEI) data are not inspected.</string>
+    <string name="tag_sei_note">Pixel-level and in-stream (SEI) data are not inspected.</string>
     <string name="status_clean">[CLEAN] No sensitive metadata detected.</string>
     <string name="status_error">[ERROR] Could not read file.</string>
     <string name="status_skip">Skip (Unsupported type)</string>

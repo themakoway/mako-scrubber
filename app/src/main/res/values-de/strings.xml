@@ -26,6 +26,14 @@
     <string name="cancel">ZURÜCK</string>
     <string name="about_mako">ÜBER MAKO</string>
     <string name="close">SCHLIESSEN</string>
+    <string name="about_mako_title">Warum ist diese App kostenlos?</string>
+    <string name="about_mako_teaser">Warum ist diese App kostenlos?</string>
+    <string name="about_mako_visit">WEITERE APPS ANSEHEN</string>
+    <string name="about_mako_body">Weil Datenschutz kein Abomodell sein sollte. Scrubber sammelt keine Daten, zeigt keine Werbung und fordert nicht einmal Internetzugriff an.\n\nEs gehört zu einer kleinen Familie von Offline-First-Tools, die schnell, unabhängig und sicher bleiben sollen. Entdecke die anderen auf makoway.app.</string>
+    <string name="whatsnew_title">JETZT AUCH FÜR VIDEOS</string>
+    <string name="whatsnew_body">Mako Scrubber entfernt jetzt Standort-, Geräte- und Zeitstempel-Metadaten auch aus Videos – MP4 und MOV – genau wie bei Fotos.\n\nOhne Qualitätsverlust: Das Video wird neu verpackt, nicht neu kodiert. Teile ein Video mit Mako Scrubber oder wähle hier eines aus, um es auszuprobieren.</string>
+    <string name="whatsnew_dismiss">VERSTANDEN</string>
+    <string name="tag_sei_note">Bild- und In-Stream-Daten (SEI) werden nicht geprüft.</string>
     <string name="share_chooser_title">Gereinigte Fotos teilen über…</string>
     <string name="label_file">Datei</string>
     <string name="label_files">Dateien</string>
