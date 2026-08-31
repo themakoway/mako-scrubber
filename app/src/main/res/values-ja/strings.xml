@@ -26,6 +26,10 @@
     <string name="cancel">キャンセル</string>
     <string name="about_mako">MAKOについて</string>
     <string name="close">閉じる</string>
+    <string name="language">言語</string>
+    <string name="system_default">システムのデフォルト</string>
+    <string name="save">保存</string>
+    <string name="choose_language">言語を選択</string>
     <string name="about_mako_title">このアプリはなぜ無料なの？</string>
     <string name="about_mako_teaser">このアプリはなぜ無料なの？</string>
     <string name="about_mako_visit">他のアプリを見る</string>

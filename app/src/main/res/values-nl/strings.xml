@@ -26,6 +26,10 @@
     <string name="cancel">ANNULEREN</string>
     <string name="about_mako">OVER MAKO</string>
     <string name="close">SLUITEN</string>
+    <string name="language">TAAL</string>
+    <string name="system_default">Systeemstandaard</string>
+    <string name="save">OPSLAAN</string>
+    <string name="choose_language">Taal kiezen</string>
     <string name="about_mako_title">Waarom is deze app gratis?</string>
     <string name="about_mako_teaser">Waarom is deze app gratis?</string>
     <string name="about_mako_visit">ANDERE APPS BEKIJKEN</string>

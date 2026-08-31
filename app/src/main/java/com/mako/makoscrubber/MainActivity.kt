@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -34,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
@@ -67,7 +67,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class MainActivity : ComponentActivity() {
+class MainActivity : LocalizedActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -652,24 +652,38 @@ fun DashboardContent(
 fun MainFooter() {
     val year = remember { Calendar.getInstance().get(Calendar.YEAR) }
     var showAbout by remember { mutableStateOf(false) }
+    var showLanguagePicker by remember { mutableStateOf(false) }
 
     if (showAbout) AboutMakoDialog(onDismiss = { showAbout = false })
+    if (showLanguagePicker) LanguagePickerDialog(onDismiss = { showLanguagePicker = false })
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = Icons.Filled.Language,
+            contentDescription = stringResource(R.string.choose_language),
+            tint = MakoCoral,
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable { showLanguagePicker = true }
+                .padding(4.dp)
+                .size(22.dp)
+        )
+        Spacer(Modifier.width(10.dp))
         Text(
             text = stringResource(R.string.copyright_format, year, BuildConfig.VERSION_NAME),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray
         )
+        Spacer(Modifier.weight(1f))
         Text(
             text = stringResource(R.string.about_mako),
             style = MaterialTheme.typography.labelLarge,
             color = MakoCoral,
             fontWeight = FontWeight.Bold,
+            maxLines = 1,
             modifier = Modifier.clickable { showAbout = true }
         )
     }

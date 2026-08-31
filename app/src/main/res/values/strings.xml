@@ -30,6 +30,10 @@
     <string name="about_mako_visit">SEE OTHER APPS</string>
     <string name="about_mako_body">Because privacy shouldn’t be a subscription model. Scrubber doesn’t collect data, show ads, or even request internet access.\n\nIt’s part of a small family of offline-first tools designed to stay fast, independent, and secure. Explore the rest at makoway.app.</string>
     <string name="close">CLOSE</string>
+    <string name="language">LANGUAGE</string>
+    <string name="system_default">System default</string>
+    <string name="save">SAVE</string>
+    <string name="choose_language">Choose language</string>
     <string name="whatsnew_title">NOW SCRUBBING VIDEO</string>
     <string name="whatsnew_body">Mako Scrubber now strips location, device, and timestamp metadata from videos — MP4 and MOV — just like it does for photos.\n\nThere\'s no quality loss: the video is repackaged, not re-encoded. Share a video to Mako Scrubber, or pick one here, to try it.</string>
     <string name="whatsnew_dismiss">GOT IT</string>

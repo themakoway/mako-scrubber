@@ -26,6 +26,10 @@
     <string name="cancel">CANCELAR</string>
     <string name="about_mako">SOBRE A MAKO</string>
     <string name="close">FECHAR</string>
+    <string name="language">IDIOMA</string>
+    <string name="system_default">Predefinição do sistema</string>
+    <string name="save">GUARDAR</string>
+    <string name="choose_language">Escolher idioma</string>
     <string name="about_mako_title">Porque é que esta app é gratuita?</string>
     <string name="about_mako_teaser">Porque é que esta app é gratuita?</string>
     <string name="about_mako_visit">VER OUTRAS APPS</string>
