@@ -25,9 +25,7 @@
     <string name="share_media_n">%1$d DATEIEN TEILEN</string>
     <string name="cancel">ZURÜCK</string>
     <string name="about_mako">ÜBER MAKO</string>
-    <string name="about_mako_visit">WEITERE APPS ANSEHEN</string>
     <string name="close">SCHLIESSEN</string>
-    <string name="whatsnew_dismiss">VERSTANDEN</string>
     <string name="share_chooser_title">Gereinigte Fotos teilen über…</string>
     <string name="label_file">Datei</string>
     <string name="label_files">Dateien</string>
@@ -45,7 +43,8 @@
     <string name="status_clean">[SAUBER] Keine sensiblen Metadaten erkannt.</string>
     <string name="status_error">[FEHLER] Datei konnte nicht gelesen werden.</string>
     <string name="status_skip">Überspringen (Nicht unterstützter Typ)</string>
-    <string name="status_scrub_failed">[ÜBERSPRUNGEN] %1$d Datei(en) konnten nicht ohne Neukodierung gereinigt werden.</string>
+    <string name="status_scrub_failed">[ÜBERSPRUNGEN] %1$d Datei(en) konnten nicht gereinigt werden.</string>
+    <string name="no_browser">Kein Browser verfügbar.</string>
     <string name="milestone_title">MEILENSTEIN ERREICHT!</string>
     <string name="milestone_msg">Sie haben über %1$d Fotos gereinigt! Gefällt Ihnen die App?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>

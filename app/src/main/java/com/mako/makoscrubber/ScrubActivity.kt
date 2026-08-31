@@ -13,7 +13,9 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -44,7 +46,7 @@ import com.mako.makoscrubber.ui.theme.MakoCoral
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.OutputStream
+import java.io.File
 import java.util.Calendar
 
 class ScrubActivity : ComponentActivity() {
@@ -143,17 +145,16 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
         if (!isScrubbing && mediaUris.isNotEmpty()) {
             isScrubbing = true
             scope.launch {
-                val (results, videoFailures) = withContext(Dispatchers.IO) {
+                val (results, failures) = withContext(Dispatchers.IO) {
                     val r = mutableListOf<Uri>()
                     var failed = 0
                     mediaUris.forEach { uri ->
-                        val isVideo = context.isVideo(uri)
-                        val out = if (isVideo) {
+                        val out = if (context.isVideo(uri)) {
                             scrubAndSaveVideo(context, uri)
                         } else {
                             scrubAndSaveImage(context, uri, estimatedSampleSize(context, uri))
                         }
-                        if (out != null) r.add(out) else if (isVideo) failed++
+                        if (out != null) r.add(out) else failed++
                     }
                     r to failed
                 }
@@ -168,9 +169,9 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                     append(auditResults)
                     append("\n---\n")
                     append(verification)
-                    if (videoFailures > 0) {
+                    if (failures > 0) {
                         append("\n")
-                        append(context.getString(R.string.status_scrub_failed, videoFailures))
+                        append(context.getString(R.string.status_scrub_failed, failures))
                     }
                 }
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -339,8 +340,8 @@ private suspend fun generateAuditReport(
     report.append("$title (${uris.size} $fileLabel):\n\n")
 
     uris.forEachIndexed { index, uri ->
-        val mimeType = context.contentResolver.getType(uri)
-        if (mimeType?.startsWith("image/") == true) {
+        val kind = context.mediaKind(uri)
+        if (kind == "image") {
             report.append(context.getString(R.string.label_file_header, index + 1) + "\n")
             try {
                 context.contentResolver.openInputStream(uri).use { stream ->
@@ -397,7 +398,7 @@ private suspend fun generateAuditReport(
                 e.printStackTrace()
                 report.append(context.getString(R.string.status_error) + "\n")
             }
-        } else if (mimeType?.startsWith("video/") == true) {
+        } else if (kind == "video") {
             report.append(context.getString(R.string.label_file_header, index + 1) + "\n")
             try {
                 val retriever = MediaMetadataRetriever()
@@ -459,6 +460,11 @@ private suspend fun generateAuditReport(
                     if (foundCount == 0) {
                         report.append(context.getString(R.string.status_clean) + "\n")
                     }
+                    // Samples are copied byte-for-byte, so anything the encoder buried inside
+                    // the bitstream (H.264/HEVC SEI, burned-in overlays) is not inspected.
+                    if (isVerification) {
+                        report.append("${context.getString(R.string.status_note)} ${context.getString(R.string.tag_sei_note)}\n")
+                    }
                 } finally {
                     retriever.release()
                 }
@@ -503,8 +509,34 @@ fun ScrubFooter() {
     }
 }
 
-private fun Context.isVideo(uri: Uri): Boolean =
-    contentResolver.getType(uri)?.startsWith("video/") == true
+private val VIDEO_EXTS = setOf("mp4", "mov", "m4v", "3gp", "3gpp", "webm", "mkv", "ts", "avi")
+private val IMAGE_EXTS = setOf("jpg", "jpeg", "png", "webp", "heic", "heif", "gif", "bmp", "dng")
+
+/**
+ * "video" / "image" / "other". Prefers the content type; falls back to the file extension
+ * (from the display name, then the URI string) when a provider reports a generic type like
+ * `application/octet-stream` — some file managers and messaging apps do this for videos.
+ */
+private fun Context.mediaKind(uri: Uri): String {
+    when (contentResolver.getType(uri)?.substringBefore('/')) {
+        "video" -> return "video"
+        "image" -> return "image"
+    }
+    val name = try {
+        contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+            if (it.moveToFirst()) it.getString(0) else null
+        }
+    } catch (e: Exception) {
+        null
+    }
+    return when ((name ?: uri.toString()).substringAfterLast('.', "").lowercase()) {
+        in VIDEO_EXTS -> "video"
+        in IMAGE_EXTS -> "image"
+        else -> "other"
+    }
+}
+
+private fun Context.isVideo(uri: Uri): Boolean = mediaKind(uri) == "video"
 
 /** ISO-6709 ("+37.7749-122.4194/") -> "37.7749, -122.4194"; null if it doesn't parse. */
 private fun formatIso6709(raw: String): String? {
@@ -565,22 +597,50 @@ private suspend fun scrubAndSaveImage(context: Context, uri: Uri, startSampleSiz
         if (bitmap == null) return@withContext null
 
         val fileName = "MakoScrub_${System.currentTimeMillis()}.jpg"
+        val isQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        val preQTarget = if (!isQ) {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "MakoScrub"
+            ).apply { mkdirs() }.let { File(it, fileName) }
+        } else null
+
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (isQ) {
                 put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MakoScrub")
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            } else {
+                // Match the video path: file it under Pictures/MakoScrub so the dashboard
+                // listing and the 30-day auto-cleanup can find it pre-Q.
+                put(MediaStore.MediaColumns.DATA, preQTarget!!.absolutePath)
             }
         }
 
-        val outUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-        outUri?.let { destination ->
-            val outputStream: OutputStream? = context.contentResolver.openOutputStream(destination)
-            outputStream?.use {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, it)
-            }
-            destination
+        val resolver = context.contentResolver
+        val destination = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@withContext null
+
+        val wrote = try {
+            resolver.openOutputStream(destination)?.use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+            } ?: false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
+        if (!wrote) {
+            resolver.delete(destination, null, null)
+            return@withContext null
+        }
+
+        if (isQ) {
+            values.clear()
+            values.put(MediaStore.Images.Media.IS_PENDING, 0)
+            resolver.update(destination, values, null, null)
+        }
+        destination
     } catch (e: Exception) {
         e.printStackTrace()
         null

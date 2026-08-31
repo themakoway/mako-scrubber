@@ -25,9 +25,7 @@
     <string name="share_media_n">%1$d BESTANDEN DELEN</string>
     <string name="cancel">ANNULEREN</string>
     <string name="about_mako">OVER MAKO</string>
-    <string name="about_mako_visit">ANDERE APPS BEKIJKEN</string>
     <string name="close">SLUITEN</string>
-    <string name="whatsnew_dismiss">BEGREPEN</string>
     <string name="share_chooser_title">Opgeschoonde foto\'s delen via…</string>
     <string name="label_file">bestand</string>
     <string name="label_files">bestanden</string>
@@ -45,7 +43,8 @@
     <string name="status_clean">[SCHOON] Geen gevoelige metadata gedetecteerd.</string>
     <string name="status_error">[FOUT] Kan bestand niet lezen.</string>
     <string name="status_skip">Overslaan (Niet-ondersteund type)</string>
-    <string name="status_scrub_failed">[OVERGESLAGEN] %1$d bestand(en) konden niet worden opgeschoond zonder opnieuw te coderen.</string>
+    <string name="status_scrub_failed">[OVERGESLAGEN] %1$d bestand(en) konden niet worden opgeschoond.</string>
+    <string name="no_browser">Geen browser beschikbaar.</string>
     <string name="milestone_title">MIJLPAAL BEREIKT!</string>
     <string name="milestone_msg">Je hebt meer dan %1$d foto\'s opgeschoond met Mako Scrubber!\nBevalt de app tot nu toe?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>

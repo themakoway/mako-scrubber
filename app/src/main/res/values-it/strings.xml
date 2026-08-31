@@ -25,9 +25,7 @@
     <string name="share_media_n">CONDIVIDI %1$d FILE</string>
     <string name="cancel">ANNULLA</string>
     <string name="about_mako">INFORMAZIONI SU MAKO</string>
-    <string name="about_mako_visit">SCOPRI LE ALTRE APP</string>
     <string name="close">CHIUDI</string>
-    <string name="whatsnew_dismiss">HO CAPITO</string>
     <string name="share_chooser_title">Condividi foto pulite tramite…</string>
     <string name="label_file">file</string>
     <string name="label_files">file</string>
@@ -45,7 +43,8 @@
     <string name="status_clean">[PULITO] Nessun metadato sensibile rilevato.</string>
     <string name="status_error">[ERRORE] Impossibile leggere il file.</string>
     <string name="status_skip">Salta (Tipo non supportato)</string>
-    <string name="status_scrub_failed">[IGNORATO] Impossibile pulire %1$d file senza ricodifica.</string>
+    <string name="status_scrub_failed">[IGNORATO] Impossibile pulire %1$d file.</string>
+    <string name="no_browser">Nessun browser disponibile.</string>
     <string name="milestone_title">TRAGUARDO RAGGIUNTO!</string>
     <string name="milestone_msg">Hai pulito più di %1$d foto! Ti piace l\'app?</string>
     <string name="feedback_title">FEEDBACK MAKO</string>

@@ -256,7 +256,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
     var showOnboarding by remember { mutableStateOf(initialFirstLaunch) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var scrubbedMedia by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var scrubbedMedia by remember { mutableStateOf(ScrubbedMedia.EMPTY) }
 
     val prefs = context.getSharedPreferences("mako_prefs", Context.MODE_PRIVATE)
     var showScrubTip by remember { mutableStateOf(false) }
@@ -288,7 +288,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                 val oldSize = scrubbedMedia.size
                 scrubbedMedia = loadScrubbedMedia(context)
 
-                if (scrubbedMedia.isNotEmpty() && oldSize == 0 && !prefs.getBoolean("has_seen_tip", false)) {
+                if (scrubbedMedia.uris.isNotEmpty() && oldSize == 0 && !prefs.getBoolean("has_seen_tip", false)) {
                     showScrubTip = true
                 }
             }
@@ -326,7 +326,8 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
                 })
             } else {
                 DashboardContent(
-                    images = scrubbedMedia,
+                    images = scrubbedMedia.uris,
+                    videoUris = scrubbedMedia.videoUris,
                     onScrubClick = {
                         launcher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
@@ -406,6 +407,7 @@ fun OnboardingContent(onStart: () -> Unit) {
 @Composable
 fun DashboardContent(
     images: List<Uri>,
+    videoUris: Set<Uri>,
     onScrubClick: () -> Unit,
     onRefresh: () -> Unit,
     onImageClick: (Uri) -> Unit,
@@ -508,9 +510,7 @@ fun DashboardContent(
                     ) {
                         items(images) { uri ->
                             val isSelected = selectedUris.contains(uri)
-                            val isVideo = remember(uri) {
-                                context.contentResolver.getType(uri)?.startsWith("video/") == true
-                            }
+                            val isVideo = uri in videoUris
                             Box(
                                 modifier = Modifier
                                     .aspectRatio(1f)
@@ -689,33 +689,42 @@ private fun scrubFolderFilter(picturesOrMovies: String): Pair<String, String> {
     return column to value
 }
 
-private fun loadScrubbedMedia(context: Context): List<Uri> {
-    data class Entry(val uri: Uri, val dateAdded: Long)
+/** Scrubbed output for the dashboard: display order plus which URIs are videos. */
+data class ScrubbedMedia(val uris: List<Uri>, val videoUris: Set<Uri>) {
+    val size get() = uris.size
+
+    companion object {
+        val EMPTY = ScrubbedMedia(emptyList(), emptySet())
+    }
+}
+
+private fun loadScrubbedMedia(context: Context): ScrubbedMedia {
+    data class Entry(val uri: Uri, val dateAdded: Long, val id: Long, val isVideo: Boolean)
     val entries = mutableListOf<Entry>()
     val projection = arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATE_ADDED)
 
-    fun collect(collection: Uri, picturesOrMovies: String) {
+    fun collect(collection: Uri, picturesOrMovies: String, isVideo: Boolean) {
         val (column, value) = scrubFolderFilter(picturesOrMovies)
         try {
             context.contentResolver.query(collection, projection, "$column LIKE ?", arrayOf(value), null)?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED)
                 while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
                     entries.add(
-                        Entry(
-                            ContentUris.withAppendedId(collection, cursor.getLong(idColumn)),
-                            cursor.getLong(dateColumn)
-                        )
+                        Entry(ContentUris.withAppendedId(collection, id), cursor.getLong(dateColumn), id, isVideo)
                     )
                 }
             }
         } catch (e: Exception) { e.printStackTrace() }
     }
 
-    collect(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "Pictures")
-    collect(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "Movies")
+    collect(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "Pictures", isVideo = false)
+    collect(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "Movies", isVideo = true)
 
-    return entries.sortedByDescending { it.dateAdded }.map { it.uri }
+    // DATE_ADDED is whole seconds, so tie-break on _ID to keep a same-second batch stable.
+    val sorted = entries.sortedWith(compareByDescending<Entry> { it.dateAdded }.thenByDescending { it.id })
+    return ScrubbedMedia(sorted.map { it.uri }, sorted.filter { it.isVideo }.map { it.uri }.toSet())
 }
 
 private fun deleteOldScrubbedMedia(context: Context) {

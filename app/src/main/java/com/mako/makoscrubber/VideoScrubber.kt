@@ -8,9 +8,11 @@ import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
@@ -27,57 +29,71 @@ private const val MAX_BUFFER_SIZE = 64 shl 20 // hard cap so a bogus KEY_MAX_INP
  * there is zero quality loss. Display rotation is the only thing carried over deliberately.
  *
  * Returns the output [Uri], or null if the muxer can't handle the file without re-encoding
- * (exotic codecs, unusual track layouts) — the pending MediaStore row is cleaned up first.
+ * (exotic codecs, unusual track layouts) — the half-written output is cleaned up first.
+ * Honours coroutine cancellation: tapping Cancel mid-remux aborts and leaves nothing behind.
  */
 suspend fun scrubAndSaveVideo(context: Context, uri: Uri): Uri? = withContext(Dispatchers.IO) {
     val resolver = context.contentResolver
     val fileName = "MakoScrub_${System.currentTimeMillis()}.mp4"
+    val active: () -> Boolean = { isActive }
 
-    val values = ContentValues().apply {
-        put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
-        put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val values = ContentValues().apply {
+            put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+            put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
             put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/MakoScrub")
             put(MediaStore.Video.Media.IS_PENDING, 1)
         }
-    }
-
-    val outUri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        ?: return@withContext null
-
-    var tempFile: File? = null
-    try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val outUri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@withContext null
+        try {
             resolver.openFileDescriptor(outUri, "w")?.use { pfd ->
-                remux(context, uri) { format -> MediaMuxer(pfd.fileDescriptor, format) }
+                remux(context, uri, active) { format -> MediaMuxer(pfd.fileDescriptor, format) }
             } ?: throw IllegalStateException("could not open output descriptor")
-        } else {
-            // MediaMuxer's FileDescriptor constructor is API 26+; on 24/25 remux to a temp
-            // file and copy the bytes into the MediaStore entry.
-            val temp = File(context.cacheDir, fileName).also { tempFile = it }
-            remux(context, uri) { format -> MediaMuxer(temp.absolutePath, format) }
-            resolver.openOutputStream(outUri)?.use { out ->
-                temp.inputStream().use { it.copyTo(out) }
-            } ?: throw IllegalStateException("could not open output stream")
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             values.clear()
             values.put(MediaStore.Video.Media.IS_PENDING, 0)
             resolver.update(outUri, values, null, null)
+            outUri
+        } catch (e: CancellationException) {
+            runCatching { resolver.delete(outUri, null, null) }
+            throw e
+        } catch (e: Throwable) {
+            // Throwable, not Exception: a hostile file can drive MediaMuxer/MediaExtractor to
+            // OutOfMemoryError or a native-backed Error. Any of it means "can't remux this one".
+            Log.w("MakoScrubber", "video scrub failed for $uri", e)
+            runCatching { resolver.delete(outUri, null, null) }
+            null
         }
-        outUri
-    } catch (e: CancellationException) {
-        runCatching { resolver.delete(outUri, null, null) }
-        throw e
-    } catch (e: Throwable) {
-        // Throwable, not Exception: a hostile file can drive MediaMuxer/MediaExtractor to
-        // OutOfMemoryError or a native-backed Error. Any of it means "can't remux this one".
-        Log.w("MakoScrubber", "video scrub failed for $uri", e)
-        runCatching { resolver.delete(outUri, null, null) }
-        null
-    } finally {
-        tempFile?.delete()
+    } else {
+        // Pre-Q: MediaMuxer needs a real file path (no FileDescriptor ctor before API 26), and
+        // MediaStore won't file the row under a sub-folder without an explicit DATA path — so
+        // write to Movies/MakoScrub ourselves, then register it. Without this the dashboard
+        // listing and the 30-day auto-cleanup would never see pre-Q output.
+        val dir = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+            "MakoScrub"
+        ).apply { mkdirs() }
+        val target = File(dir, fileName)
+        try {
+            remux(context, uri, active) { format -> MediaMuxer(target.absolutePath, format) }
+            val values = ContentValues().apply {
+                put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
+                put(MediaStore.MediaColumns.DATA, target.absolutePath)
+            }
+            resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values) ?: run {
+                target.delete()
+                null
+            }
+        } catch (e: CancellationException) {
+            target.delete()
+            throw e
+        } catch (e: Throwable) {
+            Log.w("MakoScrubber", "video scrub failed for $uri", e)
+            target.delete()
+            null
+        }
     }
 }
 
@@ -87,33 +103,40 @@ suspend fun scrubAndSaveVideo(context: Context, uri: Uri): Uri? = withContext(Di
  * Used by the audit report; [scrubAndSaveVideo] drops all of these tracks.
  */
 fun videoMetadataTrackMimes(context: Context, uri: Uri): List<String> {
-    val extractor = MediaExtractor()
+    var extractor: MediaExtractor? = null
     return try {
-        extractor.setDataSource(context, uri, null)
-        (0 until extractor.trackCount).mapNotNull { i ->
-            val mime = extractor.getTrackFormat(i).getString(MediaFormat.KEY_MIME)
+        val ex = MediaExtractor().also { extractor = it }
+        ex.setDataSource(context, uri, null)
+        (0 until ex.trackCount).mapNotNull { i ->
+            val mime = ex.getTrackFormat(i).getString(MediaFormat.KEY_MIME)
             if (mime != null && !mime.startsWith("video/") && !mime.startsWith("audio/")) mime else null
         }
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         emptyList()
     } finally {
-        extractor.release()
+        extractor?.release()
     }
 }
 
-private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> MediaMuxer) {
-    val extractor = MediaExtractor()
+private inline fun remux(
+    context: Context,
+    uri: Uri,
+    isActive: () -> Boolean,
+    muxerFactory: (Int) -> MediaMuxer
+) {
+    var extractor: MediaExtractor? = null
     var muxer: MediaMuxer? = null
     try {
-        extractor.setDataSource(context, uri, null)
+        val ex = MediaExtractor().also { extractor = it }
+        ex.setDataSource(context, uri, null)
         muxer = muxerFactory(MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
 
         val trackMap = HashMap<Int, Int>() // source track index -> output track index
         var bufferSize = FALLBACK_BUFFER_SIZE
         var rotation = 0
 
-        for (i in 0 until extractor.trackCount) {
-            val format = extractor.getTrackFormat(i)
+        for (i in 0 until ex.trackCount) {
+            val format = ex.getTrackFormat(i)
             val mime = format.getString(MediaFormat.KEY_MIME) ?: continue
             val isVideo = mime.startsWith("video/")
             if (!isVideo && !mime.startsWith("audio/")) continue
@@ -126,7 +149,7 @@ private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> Medi
                 if (declared in (bufferSize + 1)..MAX_BUFFER_SIZE) bufferSize = declared
             }
 
-            extractor.selectTrack(i)
+            ex.selectTrack(i)
             trackMap[i] = muxer.addTrack(format)
         }
         if (trackMap.isEmpty()) throw IllegalStateException("no audio or video tracks")
@@ -138,13 +161,15 @@ private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> Medi
         var buffer = ByteBuffer.allocate(bufferSize)
         val bufferInfo = MediaCodec.BufferInfo()
         while (true) {
-            val sourceTrack = extractor.sampleTrackIndex
+            if (!isActive()) throw CancellationException("scrub cancelled")
+
+            val sourceTrack = ex.sampleTrackIndex
             if (sourceTrack < 0) break
 
             var sampleSize: Int
             while (true) {
                 try {
-                    sampleSize = extractor.readSampleData(buffer, 0)
+                    sampleSize = ex.readSampleData(buffer, 0)
                     break
                 } catch (e: RuntimeException) {
                     // Sample bigger than the buffer: IllegalArgumentException on most
@@ -159,15 +184,15 @@ private inline fun remux(context: Context, uri: Uri, muxerFactory: (Int) -> Medi
 
             bufferInfo.offset = 0
             bufferInfo.size = sampleSize
-            bufferInfo.presentationTimeUs = extractor.sampleTime
-            bufferInfo.flags = extractor.sampleFlags.toMuxerFlags()
+            bufferInfo.presentationTimeUs = ex.sampleTime
+            bufferInfo.flags = ex.sampleFlags.toMuxerFlags()
             muxer.writeSampleData(trackMap.getValue(sourceTrack), buffer, bufferInfo)
-            extractor.advance()
+            ex.advance()
         }
         muxer.stop()
     } finally {
         runCatching { muxer?.release() }
-        extractor.release()
+        extractor?.release()
     }
 }
 

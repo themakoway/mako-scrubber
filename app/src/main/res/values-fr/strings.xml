@@ -25,9 +25,7 @@
     <string name="share_media_n">PARTAGER %1$d FICHIERS</string>
     <string name="cancel">ANNULER</string>
     <string name="about_mako">À PROPOS DE MAKO</string>
-    <string name="about_mako_visit">VOIR LES AUTRES APPS</string>
     <string name="close">FERMER</string>
-    <string name="whatsnew_dismiss">COMPRIS</string>
     <string name="share_chooser_title">Partager les photos via…</string>
     <string name="label_file">fichier</string>
     <string name="label_files">fichiers</string>
@@ -45,7 +43,8 @@
     <string name="status_clean">[PROPRE] Aucune donnée sensible détectée.</string>
     <string name="status_error">[ERREUR] Impossible de lire le fichier.</string>
     <string name="status_skip">Ignorer (Format non supporté)</string>
-    <string name="status_scrub_failed">[IGNORÉ] %1$d fichier(s) n\'ont pas pu être nettoyés sans réencodage.</string>
+    <string name="status_scrub_failed">[IGNORÉ] %1$d fichier(s) n\'ont pas pu être nettoyés.</string>
+    <string name="no_browser">Aucun navigateur disponible.</string>
     <string name="milestone_title">JALON ATTEINT !</string>
     <string name="milestone_msg">Vous avez nettoyé plus de %1$d photos ! Vous aimez l\'application ?</string>
     <string name="feedback_title">RETOUR MAKO</string>

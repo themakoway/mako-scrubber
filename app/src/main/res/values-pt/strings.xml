@@ -25,9 +25,7 @@
     <string name="share_media_n">PARTILHAR %1$d FICHEIROS</string>
     <string name="cancel">CANCELAR</string>
     <string name="about_mako">SOBRE A MAKO</string>
-    <string name="about_mako_visit">VER OUTRAS APPS</string>
     <string name="close">FECHAR</string>
-    <string name="whatsnew_dismiss">ENTENDIDO</string>
     <string name="share_chooser_title">Partilhar fotos limpas via…</string>
     <string name="label_file">ficheiro</string>
     <string name="label_files">ficheiros</string>
@@ -45,7 +43,8 @@
     <string name="status_clean">[LIMPO] Nenhum metadado sensível detectado.</string>
     <string name="status_error">[ERRO] Não foi possível ler o ficheiro.</string>
     <string name="status_skip">Ignorar (tipo não suportado)</string>
-    <string name="status_scrub_failed">[IGNORADO] Não foi possível limpar %1$d ficheiro(s) sem recodificar.</string>
+    <string name="status_scrub_failed">[IGNORADO] Não foi possível limpar %1$d ficheiro(s).</string>
+    <string name="no_browser">Nenhum navegador disponível.</string>
     <string name="milestone_title">MARCO ALCANÇADO!</string>
     <string name="milestone_msg">Já limpou mais de %1$d fotos com o Mako Scrubber! Está a gostar da aplicação?</string>
     <string name="feedback_title">FEEDBACK DA MAKO</string>
