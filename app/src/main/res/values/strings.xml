@@ -3,8 +3,8 @@
     <string name="get_started">GET STARTED</string>
     <string name="clean_new">CLEAN NEW PHOTOS &amp; VIDEOS</string>
     <string name="recently_cleaned">RECENTLY CLEANED</string>
-    <string name="delete_auto_msg">Images will be deleted automatically after 30 days.</string>
-    <string name="no_images">No cleaned images yet.</string>
+    <string name="delete_auto_msg">Files will be deleted automatically after 30 days.</string>
+    <string name="no_images">No cleaned files yet.</string>
     <string name="tip_long_press">Tip: Long-press photos to share or delete.</string>
     <string name="delete">DELETE</string>
     <string name="share">SHARE</string>

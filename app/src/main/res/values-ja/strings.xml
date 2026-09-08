@@ -3,8 +3,8 @@
     <string name="get_started">開始する</string>
     <string name="clean_new">新しい写真・動画をクリーニング</string>
     <string name="recently_cleaned">最近のクリーニング</string>
-    <string name="delete_auto_msg">画像は30日後に自動的に削除されます。</string>
-    <string name="no_images">クリーニング済みの画像はありません。  写真を長押ししてファイルを 管理してください。</string>
+    <string name="delete_auto_msg">ファイルは30日後に自動的に削除されます。</string>
+    <string name="no_images">クリーニング済みのファイルはありません。  写真を長押ししてファイルを 管理してください。</string>
     <string name="tip_long_press">ヒント：写真を長押しして共有または削除します。</string>
     <string name="delete">削除</string>
     <string name="share">共有</string>

@@ -3,8 +3,8 @@
     <string name="get_started">立即开始</string>
     <string name="clean_new">清除新照片/视频信息</string>
     <string name="recently_cleaned">最近清除</string>
-    <string name="delete_auto_msg">图片将在 30 天后自动删除。</string>
-    <string name="no_images">暂无已清除元数据的图片。</string>
+    <string name="delete_auto_msg">文件将在 30 天后自动删除。</string>
+    <string name="no_images">暂无已清除元数据的文件。</string>
     <string name="tip_long_press">提示：长按图片即可分享或删除。</string>
     <string name="delete">删除</string>
     <string name="share">分享</string>

@@ -3,8 +3,8 @@
     <string name="get_started">JETZT STARTEN</string>
     <string name="clean_new">NEUE FOTOS &amp; VIDEOS REINIGEN</string>
     <string name="recently_cleaned">ZULETZT GEREINIGT</string>
-    <string name="delete_auto_msg">Bilder werden nach 30 Tagen automatisch gelöscht.</string>
-    <string name="no_images">Noch keine gereinigten Bilder.  Lange drücken, um Dateien zu verwalten.</string>
+    <string name="delete_auto_msg">Dateien werden nach 30 Tagen automatisch gelöscht.</string>
+    <string name="no_images">Noch keine gereinigten Dateien.  Lange drücken, um Dateien zu verwalten.</string>
     <string name="tip_long_press">Tipp: Fotos lange drücken zum Teilen oder Löschen.</string>
     <string name="delete">LÖSCHEN</string>
     <string name="share">TEILEN</string>

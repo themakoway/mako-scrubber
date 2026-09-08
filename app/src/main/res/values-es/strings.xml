@@ -3,8 +3,8 @@
     <string name="get_started">EMPEZAR</string>
     <string name="clean_new">LIMPIAR FOTOS Y VÍDEOS NUEVOS</string>
     <string name="recently_cleaned">LIMPIADAS RECIENTEMENTE</string>
-    <string name="delete_auto_msg">Las imágenes se eliminarán automáticamente después de 30 días.</string>
-    <string name="no_images">"Aún no hay imágenes limpias. "</string>
+    <string name="delete_auto_msg">Los archivos se eliminarán automáticamente después de 30 días.</string>
+    <string name="no_images">"Aún no hay archivos limpios. "</string>
     <string name="tip_long_press">Consejo: Mantén pulsadas las fotos para compartir o eliminar.</string>
     <string name="delete">ELIMINAR</string>
     <string name="share">COMPARTIR</string>

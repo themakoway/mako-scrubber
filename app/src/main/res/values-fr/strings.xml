@@ -3,8 +3,8 @@
     <string name="get_started">COMMENCER</string>
     <string name="clean_new">NETTOYER PHOTOS &amp; VIDÉOS</string>
     <string name="recently_cleaned">RÉCEMMENT NETTOYÉES</string>
-    <string name="delete_auto_msg">Les images seront supprimées automatiquement après 30 jours.</string>
-    <string name="no_images">Aucune image nettoyée.  Appuyez longuement sur une photo pour gérer les fichiers.</string>
+    <string name="delete_auto_msg">Les fichiers seront supprimés automatiquement après 30 jours.</string>
+    <string name="no_images">Aucun fichier nettoyé.  Appuyez longuement sur une photo pour gérer les fichiers.</string>
     <string name="tip_long_press">Astuce : Appuyez longuement pour partager ou supprimer.</string>
     <string name="delete">SUPPRIMER</string>
     <string name="share">PARTAGER</string>
