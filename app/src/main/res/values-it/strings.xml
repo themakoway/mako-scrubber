@@ -5,7 +5,7 @@
     <string name="recently_cleaned">PULITE DI RECENTE</string>
     <string name="delete_auto_msg">I file verranno eliminati automaticamente dopo 30 giorni.</string>
     <string name="no_images">Ancora nessun file pulito.  Tieni premuto su una foto per iniziare a gestire i file.</string>
-    <string name="tip_long_press">Suggerimento: Tieni premuto sulle foto per condividerle o eliminarle.</string>
+    <string name="tip_long_press">Suggerimento: Tieni premuto sui file per condividerli o eliminarli.</string>
     <string name="delete">ELIMINA</string>
     <string name="share">CONDIVIDI</string>
     <string name="audit_header">VERIFICA METADATI</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber ora rimuove i metadati di posizione, dispositivo e data anche dai video — MP4 e MOV — proprio come fa con le foto.\n\nNessuna perdita di qualità: il video viene riconfezionato, non ricodificato. Condividi un video con Mako Scrubber, o scegline uno qui, per provarlo.</string>
     <string name="whatsnew_dismiss">HO CAPITO</string>
     <string name="tag_sei_note">I dati a livello di pixel e nel flusso (SEI) non vengono esaminati.</string>
-    <string name="share_chooser_title">Condividi foto pulite tramite…</string>
+    <string name="share_chooser_title">Condividi file puliti tramite…</string>
     <string name="label_file">file</string>
     <string name="label_files">file</string>
     <string name="label_file_header">FILE #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[IGNORATO] Impossibile pulire %1$d file.</string>
     <string name="no_browser">Nessun browser disponibile.</string>
     <string name="milestone_title">TRAGUARDO RAGGIUNTO!</string>
-    <string name="milestone_msg">Hai pulito più di %1$d foto! Ti piace l\'app?</string>
+    <string name="milestone_msg">Hai pulito più di %1$d file! Ti piace l\'app?</string>
     <string name="feedback_title">FEEDBACK MAKO</string>
     <string name="feedback_msg">Come possiamo migliorare Scrubber per te?</string>
     <string name="privacy_notice">INFORMATIVA SULLA PRIVACY: Il modulo di feedback è anonimo.</string>

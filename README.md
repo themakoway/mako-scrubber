@@ -1,10 +1,10 @@
 # Mako Scrubber
 
-Removes EXIF metadata from photos before you share them. Local-only. Zero INTERNET permission. GPLv3.
+Removes EXIF metadata from photos and videos before you share them. Local-only. Zero INTERNET permission. GPLv3.
 
 ## What it does
 
-Mako Scrubber strips GPS location, camera make/model, timestamps, and other identifying EXIF metadata from photos before you post or send them. Share it from any app, get clean copies back — no account, no cloud, no upload, ever.
+Mako Scrubber strips GPS location, camera make/model, timestamps, and other identifying metadata from photos and videos before you post or send them. Share from any app, get clean copies back — no account, no cloud, no upload, ever.
 
 ## Screenshots
 
@@ -17,9 +17,9 @@ Mako Scrubber strips GPS location, camera make/model, timestamps, and other iden
 
 ## Features
 
-- Strips GPS location, camera make/model, timestamp, and software tags from JPEG/HEIC photos
+- Strips GPS location, camera make/model, timestamp, and software tags from JPEG/HEIC photos and MP4/MOV videos
 - Works from any app's share sheet (`Share > Mako Scrubber`)
-- Batch scrub and share/delete multiple photos at once
+- Batch scrub and share/delete multiple photos and videos at once
 - Cleaned photos auto-expire after 30 days
 - No internet permission — the app cannot phone home even if it wanted to
 - No accounts, no subscriptions, no ads

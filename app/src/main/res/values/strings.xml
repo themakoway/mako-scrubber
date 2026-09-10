@@ -5,7 +5,7 @@
     <string name="recently_cleaned">RECENTLY CLEANED</string>
     <string name="delete_auto_msg">Files will be deleted automatically after 30 days.</string>
     <string name="no_images">No cleaned files yet.</string>
-    <string name="tip_long_press">Tip: Long-press photos to share or delete.</string>
+    <string name="tip_long_press">Tip: Long-press files to share or delete.</string>
     <string name="delete">DELETE</string>
     <string name="share">SHARE</string>
     <string name="audit_header">METADATA AUDIT</string>
@@ -37,7 +37,7 @@
     <string name="whatsnew_title">NOW SCRUBBING VIDEO</string>
     <string name="whatsnew_body">Mako Scrubber now strips location, device, and timestamp metadata from videos — MP4 and MOV — just like it does for photos.\n\nThere\'s no quality loss: the video is repackaged, not re-encoded. Share a video to Mako Scrubber, or pick one here, to try it.</string>
     <string name="whatsnew_dismiss">GOT IT</string>
-    <string name="share_chooser_title">Share Clean Photos via…</string>
+    <string name="share_chooser_title">Share Clean Files via…</string>
     <string name="label_file">file</string>
     <string name="label_files">files</string>
     <string name="label_file_header">FILE #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[SKIP] %1$d file(s) could not be scrubbed.</string>
     <string name="no_browser">No browser available.</string>
     <string name="milestone_title">MILESTONE REACHED!</string>
-    <string name="milestone_msg">You\'ve cleaned over %1$d photos! Enjoying the app?</string>
+    <string name="milestone_msg">You\'ve cleaned over %1$d files! Enjoying the app?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>
     <string name="feedback_msg">How can we make Scrubber better for you?</string>
     <string name="privacy_notice">PRIVACY NOTICE: The feedback form is anonymous.</string>

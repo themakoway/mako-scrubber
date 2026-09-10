@@ -5,7 +5,7 @@
     <string name="recently_cleaned">ZULETZT GEREINIGT</string>
     <string name="delete_auto_msg">Dateien werden nach 30 Tagen automatisch gelöscht.</string>
     <string name="no_images">Noch keine gereinigten Dateien.  Lange drücken, um Dateien zu verwalten.</string>
-    <string name="tip_long_press">Tipp: Fotos lange drücken zum Teilen oder Löschen.</string>
+    <string name="tip_long_press">Tipp: Dateien lange drücken zum Teilen oder Löschen.</string>
     <string name="delete">LÖSCHEN</string>
     <string name="share">TEILEN</string>
     <string name="audit_header">METADATEN-AUDIT</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber entfernt jetzt Standort-, Geräte- und Zeitstempel-Metadaten auch aus Videos – MP4 und MOV – genau wie bei Fotos.\n\nOhne Qualitätsverlust: Das Video wird neu verpackt, nicht neu kodiert. Teile ein Video mit Mako Scrubber oder wähle hier eines aus, um es auszuprobieren.</string>
     <string name="whatsnew_dismiss">VERSTANDEN</string>
     <string name="tag_sei_note">Bild- und In-Stream-Daten (SEI) werden nicht geprüft.</string>
-    <string name="share_chooser_title">Gereinigte Fotos teilen über…</string>
+    <string name="share_chooser_title">Gereinigte Dateien teilen über…</string>
     <string name="label_file">Datei</string>
     <string name="label_files">Dateien</string>
     <string name="label_file_header">DATEI Nr. %1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[ÜBERSPRUNGEN] %1$d Datei(en) konnten nicht gereinigt werden.</string>
     <string name="no_browser">Kein Browser verfügbar.</string>
     <string name="milestone_title">MEILENSTEIN ERREICHT!</string>
-    <string name="milestone_msg">Sie haben über %1$d Fotos gereinigt! Gefällt Ihnen die App?</string>
+    <string name="milestone_msg">Sie haben über %1$d Dateien gereinigt! Gefällt Ihnen die App?</string>
     <string name="feedback_title">MAKO FEEDBACK</string>
     <string name="feedback_msg">Wie können wir Scrubber für Sie besser machen?</string>
     <string name="privacy_notice">DATENSCHUTZHINWEIS: Das Formular ist anonym.</string>

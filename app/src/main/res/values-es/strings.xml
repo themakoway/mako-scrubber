@@ -5,7 +5,7 @@
     <string name="recently_cleaned">LIMPIADAS RECIENTEMENTE</string>
     <string name="delete_auto_msg">Los archivos se eliminarán automáticamente después de 30 días.</string>
     <string name="no_images">"Aún no hay archivos limpios. "</string>
-    <string name="tip_long_press">Consejo: Mantén pulsadas las fotos para compartir o eliminar.</string>
+    <string name="tip_long_press">Consejo: Mantén pulsados los archivos para compartir o eliminar.</string>
     <string name="delete">ELIMINAR</string>
     <string name="share">COMPARTIR</string>
     <string name="audit_header">AUDITORÍA DE METADATOS</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber ahora elimina los metadatos de ubicación, dispositivo y fecha de los vídeos —MP4 y MOV— igual que hace con las fotos.\n\nSin pérdida de calidad: el vídeo se reempaqueta, no se recodifica. Comparte un vídeo con Mako Scrubber, o elige uno aquí, para probarlo.</string>
     <string name="whatsnew_dismiss">ENTENDIDO</string>
     <string name="tag_sei_note">No se analizan los datos a nivel de píxel ni los datos internos del flujo (SEI).</string>
-    <string name="share_chooser_title">Compartir fotos limpias mediante…</string>
+    <string name="share_chooser_title">Compartir archivos limpios mediante…</string>
     <string name="label_file">archivo</string>
     <string name="label_files">archivos</string>
     <string name="label_file_header">ARCHIVO #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[OMITIDO] No se pudieron limpiar %1$d archivo(s).</string>
     <string name="no_browser">No hay ningún navegador disponible.</string>
     <string name="milestone_title">¡HITO ALCANZADO!</string>
-    <string name="milestone_msg">¡Has limpiado más de %1$d fotos! ¿Te gusta la aplicación?</string>
+    <string name="milestone_msg">¡Has limpiado más de %1$d archivos! ¿Te gusta la aplicación?</string>
     <string name="feedback_title">COMENTARIOS DE MAKO</string>
     <string name="feedback_msg">¿Cómo podemos mejorar Scrubber para ti?</string>
     <string name="privacy_notice">AVISO DE PRIVACIDAD: El formulario es anónimo.</string>

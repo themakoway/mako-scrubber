@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber supprime désormais les métadonnées de lieu, d\'appareil et de date des vidéos — MP4 et MOV — comme pour les photos.\n\nSans perte de qualité : la vidéo est ré-empaquetée, pas ré-encodée. Partagez une vidéo vers Mako Scrubber, ou choisissez-en une ici, pour l\'essayer.</string>
     <string name="whatsnew_dismiss">COMPRIS</string>
     <string name="tag_sei_note">Les données au niveau des pixels et dans le flux (SEI) ne sont pas examinées.</string>
-    <string name="share_chooser_title">Partager les photos via…</string>
+    <string name="share_chooser_title">Partager les fichiers via…</string>
     <string name="label_file">fichier</string>
     <string name="label_files">fichiers</string>
     <string name="label_file_header">FICHIER n°%1$d :</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[IGNORÉ] %1$d fichier(s) n\'ont pas pu être nettoyés.</string>
     <string name="no_browser">Aucun navigateur disponible.</string>
     <string name="milestone_title">JALON ATTEINT !</string>
-    <string name="milestone_msg">Vous avez nettoyé plus de %1$d photos ! Vous aimez l\'application ?</string>
+    <string name="milestone_msg">Vous avez nettoyé plus de %1$d fichiers ! Vous aimez l\'application ?</string>
     <string name="feedback_title">RETOUR MAKO</string>
     <string name="feedback_msg">Comment pouvons-nous améliorer Scrubber pour vous ?</string>
     <string name="privacy_notice">AVIS DE CONFIDENTIALITÉ : Le formulaire est anonyme.</string>

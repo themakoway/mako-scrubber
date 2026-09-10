@@ -5,7 +5,7 @@
     <string name="recently_cleaned">最近のクリーニング</string>
     <string name="delete_auto_msg">ファイルは30日後に自動的に削除されます。</string>
     <string name="no_images">クリーニング済みのファイルはありません。  写真を長押ししてファイルを 管理してください。</string>
-    <string name="tip_long_press">ヒント：写真を長押しして共有または削除します。</string>
+    <string name="tip_long_press">ヒント：ファイルを長押しして共有または削除します。</string>
     <string name="delete">削除</string>
     <string name="share">共有</string>
     <string name="audit_header">メタデータ監査</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber は写真と同じように、動画（MP4・MOV）からも位置情報・端末・タイムスタンプのメタデータを削除できるようになりました。\n\n画質は劣化しません。動画は再エンコードではなく、コンテナを作り直すだけです。Mako Scrubber に動画を共有するか、ここから選んでお試しください。</string>
     <string name="whatsnew_dismiss">OK</string>
     <string name="tag_sei_note">ピクセル単位のデータやストリーム内（SEI）データは検査されません。</string>
-    <string name="share_chooser_title">クリーニング済み写真を共有…</string>
+    <string name="share_chooser_title">クリーニング済みファイルを共有…</string>
     <string name="label_file">ファイル</string>
     <string name="label_files">ファイル</string>
     <string name="label_file_header">ファイル #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[スキップ] %1$d 個のファイルをクリーニングできませんでした。</string>
     <string name="no_browser">利用可能なブラウザがありません。</string>
     <string name="milestone_title">マイルストーン達成！</string>
-    <string name="milestone_msg">Mako Scrubberで%1$d枚以上の写真をクリーニングしました！\nアプリの使い心地はいかがですか？</string>
+    <string name="milestone_msg">Mako Scrubberで%1$d件以上のファイルをクリーニングしました！\nアプリの使い心地はいかがですか？</string>
     <string name="feedback_title">MAKO フィードバック</string>
     <string name="feedback_msg">それは残念です。Scrubberをより良くするためのご意見をお聞かせください。</string>
     <string name="privacy_notice">プライバシーに関するお知らせ：フィードバックフォームは匿名です。メタデータやローカルデータベースの情報は送信されません。</string>

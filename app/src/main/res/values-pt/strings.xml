@@ -5,7 +5,7 @@
     <string name="recently_cleaned">LIMPAS RECENTEMENTE</string>
     <string name="delete_auto_msg">Os ficheiros serão eliminados automaticamente após 30 dias.</string>
     <string name="no_images">Ainda não há ficheiros limpos.</string>
-    <string name="tip_long_press">Dica: Prima e segure as fotos para partilhar ou eliminar.</string>
+    <string name="tip_long_press">Dica: Prima e segure os ficheiros para partilhar ou eliminar.</string>
     <string name="delete">ELIMINAR</string>
     <string name="share">PARTILHAR</string>
     <string name="audit_header">AUDITORIA DE METADADOS</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">O Mako Scrubber agora remove os metadados de localização, dispositivo e data também dos vídeos — MP4 e MOV — tal como faz com as fotos.\n\nSem perda de qualidade: o vídeo é reempacotado, não recodificado. Partilhe um vídeo com o Mako Scrubber, ou escolha um aqui, para experimentar.</string>
     <string name="whatsnew_dismiss">ENTENDIDO</string>
     <string name="tag_sei_note">Os dados ao nível do pixel e dentro do fluxo (SEI) não são analisados.</string>
-    <string name="share_chooser_title">Partilhar fotos limpas via…</string>
+    <string name="share_chooser_title">Partilhar ficheiros limpos via…</string>
     <string name="label_file">ficheiro</string>
     <string name="label_files">ficheiros</string>
     <string name="label_file_header">FICHEIRO #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[IGNORADO] Não foi possível limpar %1$d ficheiro(s).</string>
     <string name="no_browser">Nenhum navegador disponível.</string>
     <string name="milestone_title">MARCO ALCANÇADO!</string>
-    <string name="milestone_msg">Já limpou mais de %1$d fotos com o Mako Scrubber! Está a gostar da aplicação?</string>
+    <string name="milestone_msg">Já limpou mais de %1$d ficheiros com o Mako Scrubber! Está a gostar da aplicação?</string>
     <string name="feedback_title">FEEDBACK DA MAKO</string>
     <string name="feedback_msg">Lamentamos saber disso. Como podemos tornar o Scrubber melhor para si?</string>
     <string name="privacy_notice">AVISO DE PRIVACIDADE: O formulário de feedback é anónimo. Nenhum metadado ou dado local será transmitido.</string>

@@ -5,7 +5,7 @@
     <string name="recently_cleaned">最近清除</string>
     <string name="delete_auto_msg">文件将在 30 天后自动删除。</string>
     <string name="no_images">暂无已清除元数据的文件。</string>
-    <string name="tip_long_press">提示：长按图片即可分享或删除。</string>
+    <string name="tip_long_press">提示：长按文件即可分享或删除。</string>
     <string name="delete">删除</string>
     <string name="share">分享</string>
     <string name="audit_header">元数据审计</string>
@@ -38,7 +38,7 @@
     <string name="whatsnew_body">Mako Scrubber 现在也能像处理照片那样，从视频（MP4 和 MOV）中清除位置、设备和时间戳等元数据。\n\n画质不会损失：视频只是重新封装，并非重新编码。将视频分享到 Mako Scrubber，或在此处选择一个视频来试试。</string>
     <string name="whatsnew_dismiss">知道了</string>
     <string name="tag_sei_note">不检查像素级数据和流内 (SEI) 数据。</string>
-    <string name="share_chooser_title">分享已清除信息的照片…</string>
+    <string name="share_chooser_title">分享已清除信息的文件…</string>
     <string name="label_file">文件</string>
     <string name="label_files">文件</string>
     <string name="label_file_header">文件 #%1$d:</string>
@@ -58,7 +58,7 @@
     <string name="status_scrub_failed">[已跳过] %1$d 个文件无法清除。</string>
     <string name="no_browser">没有可用的浏览器。</string>
     <string name="milestone_title">达成里程碑！</string>
-    <string name="milestone_msg">您已使用 Mako Scrubber 清理了超过 %1$d 张照片！\n您觉得这款应用怎么样？</string>
+    <string name="milestone_msg">您已使用 Mako Scrubber 清理了超过 %1$d 个文件！\n您觉得这款应用怎么样？</string>
     <string name="feedback_title">MAKO 反馈</string>
     <string name="feedback_msg">听到这个消息我们深感遗憾。我们很想知道如何为您改进 Scrubber。</string>
     <string name="privacy_notice">隐私提示：反馈表单是匿名的。不会传输任何元数据或本地数据库信息。</string>
