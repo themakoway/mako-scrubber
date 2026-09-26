@@ -20,7 +20,7 @@ android {
         applicationId = "com.mako.makoscrubber"
         minSdk = 24
         targetSdk = 36
-        versionCode = 11
+        versionCode = 12
         versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -55,6 +55,14 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    bundle {
+        language {
+            // Ship every translation in every install so the in-app language picker works;
+            // otherwise Play only delivers resources for the device's system languages.
+            enableSplit = false
+        }
     }
 
     dependenciesInfo {
