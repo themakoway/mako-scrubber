@@ -66,7 +66,7 @@ android {
     }
 
     dependenciesInfo {
-        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+        // Disables dependency metadata when building APKs
         includeInApk = false
         // Disables dependency metadata when building Android App Bundles (for Google Play)
         includeInBundle = false
