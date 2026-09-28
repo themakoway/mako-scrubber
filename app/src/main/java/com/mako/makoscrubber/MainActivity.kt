@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -50,7 +49,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -74,7 +72,6 @@ class MainActivity : LocalizedActivity() {
 
         val prefs = getSharedPreferences("mako_prefs", Context.MODE_PRIVATE)
         val isFirstLaunch = prefs.getBoolean("is_first_launch", true)
-        val settings = (application as ScrubberApplication).settings
 
         // The video-support "what's new" card is for people updating from a photo-only
         // build; brand-new users get onboarding instead, so opt them out permanently.
@@ -91,46 +88,13 @@ class MainActivity : LocalizedActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val totalScrubbed by settings.totalScrubbedCount.collectAsState(initial = 0)
-                    val hasAsked by settings.hasAskedForReview.collectAsState(initial = false)
-                    val threshold by settings.reviewThreshold.collectAsState(initial = 100)
-
-                    var showReviewPrompt by remember { mutableStateOf(false) }
                     var showWhatsNew by remember { mutableStateOf(showWhatsNewOnLaunch) }
-                    val scope = rememberCoroutineScope()
-
-                    LaunchedEffect(totalScrubbed, hasAsked, threshold) {
-                        if (!hasAsked && totalScrubbed >= threshold) {
-                            showReviewPrompt = true
-                        }
-                    }
 
                     if (showWhatsNew) {
                         WhatsNewDialog(onAcknowledge = {
                             prefs.edit().putBoolean("seen_video_whatsnew", true).apply()
                             showWhatsNew = false
                         })
-                    } else if (showReviewPrompt) {
-                        MakoReviewDialog(
-                            threshold = threshold,
-                            onDismiss = {
-                                scope.launch {
-                                    val nextTarget = when {
-                                        threshold < 500 -> 500
-                                        threshold < 1000 -> 1000
-                                        else -> 999999
-                                    }
-                                    settings.setReviewThreshold(nextTarget)
-                                    showReviewPrompt = false
-                                }
-                            },
-                            onHandled = { permanent ->
-                                scope.launch {
-                                    if (permanent) settings.markReviewAsked()
-                                    showReviewPrompt = false
-                                }
-                            }
-                        )
                     }
 
                     MakoHome(isFirstLaunch) {
@@ -140,90 +104,6 @@ class MainActivity : LocalizedActivity() {
             }
         }
     }
-}
-
-@Composable
-fun MakoReviewDialog(
-    threshold: Int,
-    onDismiss: () -> Unit,
-    onHandled: (Boolean) -> Unit
-) {
-    var stage by remember { mutableIntStateOf(1) }
-    val uriHandler = LocalUriHandler.current
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = if (stage == 1) stringResource(R.string.milestone_title) else stringResource(R.string.feedback_title),
-                fontFamily = CauseFont,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column {
-                when (stage) {
-                    1 -> Text(stringResource(R.string.milestone_msg, threshold))
-                    2 -> Text(stringResource(R.string.btn_leave_review) + "?")
-                    3 -> {
-                        Column {
-                            Text(stringResource(R.string.feedback_msg) + "\n")
-                            Surface(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Shield, contentDescription = null, tint = MakoCoral, modifier = Modifier.size(20.dp))
-                                    Spacer(Modifier.width(12.dp))
-                                    Text(
-                                        text = stringResource(R.string.privacy_notice),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            when (stage) {
-                1 -> {
-                    Row {
-                        TextButton(onClick = { stage = 3 }) { Text(stringResource(R.string.btn_not_really), fontFamily = CauseFont) }
-                        Button(
-                            onClick = { stage = 2 },
-                            colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
-                        ) { Text(stringResource(R.string.btn_yes), fontFamily = CauseFont, color = Color.White) }
-                    }
-                }
-                2 -> {
-                    Button(
-                        onClick = {
-                            uriHandler.openUri("https://play.google.com/store/apps/details?id=com.mako.makoscrubber")
-                            onHandled(true)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
-                    ) { Text(stringResource(R.string.btn_leave_review), fontFamily = CauseFont, color = Color.White) }
-                }
-                3 -> {
-                    Button(
-                        onClick = {
-                            uriHandler.openUri("https://makoway.app/FEEDBACK.html?app=MAKO_SCRUBBER")
-                            onHandled(true)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
-                    ) { Text(stringResource(R.string.btn_give_feedback), fontFamily = CauseFont, color = Color.White) }
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_maybe_later), fontFamily = CauseFont, color = Color.Gray)
-            }
-        }
-    )
 }
 
 @Composable
@@ -316,6 +196,7 @@ fun MakoHome(initialFirstLaunch: Boolean, onActionTaken: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(horizontal = 24.dp)
     ) {
         Box(modifier = Modifier.weight(1f)) {

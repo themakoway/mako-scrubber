@@ -20,8 +20,8 @@ android {
         applicationId = "com.mako.makoscrubber"
         minSdk = 24
         targetSdk = 36
-        versionCode = 12
-        versionName = "2.0"
+        versionCode = 14
+        versionName = "2.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -58,12 +58,9 @@
     <string name="status_scrub_failed">[ÜBERSPRUNGEN] %1$d Datei(en) konnten nicht gereinigt werden.</string>
     <string name="no_browser">Kein Browser verfügbar.</string>
     <string name="milestone_title">MEILENSTEIN ERREICHT!</string>
-    <string name="milestone_msg">Sie haben über %1$d Dateien gereinigt! Gefällt Ihnen die App?</string>
-    <string name="feedback_title">MAKO FEEDBACK</string>
-    <string name="feedback_msg">Wie können wir Scrubber für Sie besser machen?</string>
+    <string name="milestone_msg">Sie haben mit Scrubber über %1$d Fotos und Videos gereinigt!</string>
+    <string name="review_request_msg">Wenn Scrubber für Sie nützlich ist, hilft eine Bewertung bei Google Play anderen, die App zu finden. Sie können uns auch sagen, wie wir sie verbessern können.</string>
     <string name="privacy_notice">DATENSCHUTZHINWEIS: Das Formular ist anonym.</string>
-    <string name="btn_yes">JA!</string>
-    <string name="btn_not_really">NICHT WIRKLICH</string>
     <string name="btn_leave_review">BEWERTEN</string>
     <string name="btn_give_feedback">FEEDBACK GEBEN</string>
     <string name="btn_maybe_later">VIELLEICHT SPÄTER</string>

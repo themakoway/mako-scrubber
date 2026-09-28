@@ -58,12 +58,9 @@
     <string name="status_scrub_failed">[已跳过] %1$d 个文件无法清除。</string>
     <string name="no_browser">没有可用的浏览器。</string>
     <string name="milestone_title">达成里程碑！</string>
-    <string name="milestone_msg">您已使用 Mako Scrubber 清理了超过 %1$d 个文件！\n您觉得这款应用怎么样？</string>
-    <string name="feedback_title">MAKO 反馈</string>
-    <string name="feedback_msg">听到这个消息我们深感遗憾。我们很想知道如何为您改进 Scrubber。</string>
+    <string name="milestone_msg">您已使用 Mako Scrubber 清理了超过 %1$d 个照片和视频文件！</string>
+    <string name="review_request_msg">如果 Scrubber 对您有帮助，在 Google Play 上留下评价可以帮助更多人找到它。您也可以告诉我们如何改进。</string>
     <string name="privacy_notice">隐私提示：反馈表单是匿名的。不会传输任何元数据或本地数据库信息。</string>
-    <string name="btn_yes">是的！</string>
-    <string name="btn_not_really">不太喜欢</string>
     <string name="btn_leave_review">发表评价</string>
     <string name="btn_give_feedback">提供反馈</string>
     <string name="btn_maybe_later">稍后再说</string>

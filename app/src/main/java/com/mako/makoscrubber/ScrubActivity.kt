@@ -24,7 +24,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +47,7 @@ import com.mako.makoscrubber.ui.theme.MakoScrubberTheme
 import com.mako.makoscrubber.ui.theme.CauseFont
 import com.mako.makoscrubber.ui.theme.MakoCoral
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -139,6 +144,7 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
     }
 
     var showLargeWarning by remember { mutableStateOf(false) }
+    var reviewMilestone by remember { mutableStateOf<Int?>(null) }
 
     val runScrub: () -> Unit = {
         if (!isScrubbing && mediaUris.isNotEmpty()) {
@@ -175,6 +181,13 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                 }
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 isScrubbing = false
+
+                if (results.isNotEmpty() && !settings.hasAskedForReview.first()) {
+                    val threshold = settings.reviewThreshold.first()
+                    if (threshold != null && settings.totalScrubbedCount.first() >= threshold) {
+                        reviewMilestone = threshold
+                    }
+                }
             }
         }
     }
@@ -214,6 +227,20 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                 TextButton(onClick = { showLargeWarning = false }) {
                     Text(stringResource(R.string.cancel), fontFamily = CauseFont, color = Color.Gray)
                 }
+            }
+        )
+    }
+
+    reviewMilestone?.let { milestone ->
+        MakoReviewDialog(
+            milestone = milestone,
+            onLater = {
+                reviewMilestone = null
+                scope.launch { settings.postponeReview() }
+            },
+            onChosen = {
+                reviewMilestone = null
+                scope.launch { settings.markReviewAsked() }
             }
         )
     }
@@ -325,6 +352,63 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
         }
         ScrubFooter()
     }
+}
+
+// Google Play forbids asking how the user feels before offering a review, so the review
+// and feedback buttons are offered side by side with equal weight, to everyone.
+@Composable
+fun MakoReviewDialog(
+    milestone: Int,
+    onLater: () -> Unit,
+    onChosen: () -> Unit
+) {
+    val uriHandler = LocalUriHandler.current
+
+    AlertDialog(
+        onDismissRequest = onLater,
+        title = {
+            Text(stringResource(R.string.milestone_title), fontFamily = CauseFont, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.milestone_msg, milestone))
+                Text(stringResource(R.string.review_request_msg))
+                Button(
+                    onClick = {
+                        uriHandler.openUri("https://play.google.com/store/apps/details?id=com.mako.makoscrubber")
+                        onChosen()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.btn_leave_review), fontFamily = CauseFont, color = Color.White) }
+                Button(
+                    onClick = {
+                        uriHandler.openUri("https://makoway.app/FEEDBACK.html?app=MAKO_SCRUBBER")
+                        onChosen()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.btn_give_feedback), fontFamily = CauseFont, color = Color.White) }
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Shield, contentDescription = null, tint = MakoCoral, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(stringResource(R.string.privacy_notice), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onLater) {
+                Text(stringResource(R.string.btn_maybe_later), fontFamily = CauseFont, color = Color.Gray)
+            }
+        }
+    )
 }
 
 private suspend fun generateAuditReport(

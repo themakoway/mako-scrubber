@@ -58,12 +58,9 @@
     <string name="status_scrub_failed">[IGNORÉ] %1$d fichier(s) n\'ont pas pu être nettoyés.</string>
     <string name="no_browser">Aucun navigateur disponible.</string>
     <string name="milestone_title">JALON ATTEINT !</string>
-    <string name="milestone_msg">Vous avez nettoyé plus de %1$d fichiers ! Vous aimez l\'application ?</string>
-    <string name="feedback_title">RETOUR MAKO</string>
-    <string name="feedback_msg">Comment pouvons-nous améliorer Scrubber pour vous ?</string>
+    <string name="milestone_msg">Vous avez nettoyé plus de %1$d photos et vidéos avec Scrubber !</string>
+    <string name="review_request_msg">Si Scrubber vous est utile, un avis sur Google Play aide d\'autres personnes à le trouver. Vous pouvez aussi nous dire comment l\'améliorer.</string>
     <string name="privacy_notice">AVIS DE CONFIDENTIALITÉ : Le formulaire est anonyme.</string>
-    <string name="btn_yes">OUI !</string>
-    <string name="btn_not_really">PAS VRAIMENT</string>
     <string name="btn_leave_review">LAISSER UN AVIS</string>
     <string name="btn_give_feedback">DONNER VOTRE AVIS</string>
     <string name="btn_maybe_later">PLUS TARD</string>

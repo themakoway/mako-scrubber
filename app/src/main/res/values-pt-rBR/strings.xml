@@ -58,12 +58,9 @@
     <string name="status_scrub_failed">[IGNORADO] Não foi possível limpar %1$d arquivo(s).</string>
     <string name="no_browser">Nenhum navegador disponível.</string>
     <string name="milestone_title">MARCO ATINGIDO!</string>
-    <string name="milestone_msg">Você já limpou mais de %1$d arquivos! Está curtindo o app?</string>
-    <string name="feedback_title">FEEDBACK DA MAKO</string>
-    <string name="feedback_msg">Que pena! Como podemos melhorar o Scrubber pra você?</string>
+    <string name="milestone_msg">Você já limpou mais de %1$d fotos e vídeos com o Scrubber!</string>
+    <string name="review_request_msg">Se o Scrubber tem sido útil pra você, uma avaliação no Google Play ajuda outras pessoas a encontrá-lo. Você também pode nos contar como melhorar o app.</string>
     <string name="privacy_notice">AVISO DE PRIVACIDADE: O formulário de feedback é anônimo. Nenhum metadado ou dado local será enviado.</string>
-    <string name="btn_yes">SIM!</string>
-    <string name="btn_not_really">NEM TANTO</string>
     <string name="btn_leave_review">AVALIAR O APP</string>
     <string name="btn_give_feedback">ENVIAR FEEDBACK</string>
     <string name="btn_maybe_later">QUEM SABE DEPOIS</string>
