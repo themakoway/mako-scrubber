@@ -34,6 +34,9 @@
     <string name="about_mako_teaser">这款应用为什么免费？</string>
     <string name="about_mako_visit">查看其他应用</string>
     <string name="about_mako_body">因为隐私不该做成订阅制。Scrubber 不收集数据、不显示广告，甚至不请求联网权限。\n\n它属于一小组以离线优先为原则的工具，追求快速、独立和安全。其余应用可在 makoway.app 查看。</string>
+    <!-- makoway.app page in this language -->
+    <string name="website_url">https://makoway.app/zh.html</string>
+    <string name="feedback_url">https://makoway.app/zh/FEEDBACK.html?app=MAKO_SCRUBBER</string>
     <string name="whatsnew_title">现在也能清除视频信息</string>
     <string name="whatsnew_body">Mako Scrubber 现在也能像处理照片那样，从视频（MP4 和 MOV）中清除位置、设备和时间戳等元数据。\n\n画质不会损失：视频只是重新封装，并非重新编码。将视频分享到 Mako Scrubber，或在此处选择一个视频来试试。</string>
     <string name="whatsnew_dismiss">知道了</string>

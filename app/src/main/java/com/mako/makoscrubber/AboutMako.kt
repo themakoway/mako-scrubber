@@ -56,7 +56,7 @@ fun AboutMakoDialog(onDismiss: () -> Unit) {
                 onClick = {
                     // AndroidUriHandler.openUri throws if no activity can handle the URL
                     // (no browser installed / disabled).
-                    runCatching { uriHandler.openUri("https://www.makoway.app") }
+                    runCatching { uriHandler.openUri(context.getString(R.string.website_url)) }
                         .onFailure {
                             Toast.makeText(context, context.getString(R.string.no_browser), Toast.LENGTH_SHORT).show()
                         }

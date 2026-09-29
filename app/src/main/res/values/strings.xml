@@ -29,6 +29,9 @@
     <string name="about_mako_teaser">Why is this app free?</string>
     <string name="about_mako_visit">SEE OTHER APPS</string>
     <string name="about_mako_body">Because privacy shouldn’t be a subscription model. Scrubber doesn’t collect data, show ads, or even request internet access.\n\nIt’s part of a small family of offline-first tools designed to stay fast, independent, and secure. Explore the rest at makoway.app.</string>
+    <!-- makoway.app page in this language -->
+    <string name="website_url">https://makoway.app</string>
+    <string name="feedback_url">https://makoway.app/FEEDBACK.html?app=MAKO_SCRUBBER</string>
     <string name="close">CLOSE</string>
     <string name="language">LANGUAGE</string>
     <string name="system_default">System default</string>

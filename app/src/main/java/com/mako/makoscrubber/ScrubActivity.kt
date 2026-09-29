@@ -363,6 +363,7 @@ fun MakoReviewDialog(
     onChosen: () -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
+    val feedbackUrl = stringResource(R.string.feedback_url)
 
     AlertDialog(
         onDismissRequest = onLater,
@@ -383,7 +384,7 @@ fun MakoReviewDialog(
                 ) { Text(stringResource(R.string.btn_leave_review), fontFamily = CauseFont, color = Color.White) }
                 Button(
                     onClick = {
-                        uriHandler.openUri("https://makoway.app/FEEDBACK.html?app=MAKO_SCRUBBER")
+                        uriHandler.openUri(feedbackUrl)
                         onChosen()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
