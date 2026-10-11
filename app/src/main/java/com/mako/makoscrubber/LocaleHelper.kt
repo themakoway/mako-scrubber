@@ -23,7 +23,7 @@ object LocaleHelper {
     /** A language the app ships translations for. [tag] "" is the system-default sentinel. */
     data class AppLanguage(val tag: String, val autonym: String)
 
-    /** The 10 shipped locales, keyed to their values-* resource folders. */
+    /** The 11 shipped locales, keyed to their values-* resource folders. */
     val LANGUAGES: List<AppLanguage> = listOf(
         AppLanguage("en", "English"),
         AppLanguage("de", "Deutsch"),
@@ -34,6 +34,7 @@ object LocaleHelper {
         AppLanguage("nl", "Nederlands"),
         AppLanguage("pt", "Português"),
         AppLanguage("pt-BR", "Português (Brasil)"),
+        AppLanguage("uk", "Українська"),
         AppLanguage("zh", "中文"),
     )
 

@@ -1,6 +1,6 @@
 # MAKO SCRUBBER App Store Translations
 
-This document contains all app store listing translations for MAKO SCRUBBER across 10 languages. Each language section includes the app name, short description, and full description with their respective character limits.
+This document contains all app store listing translations for MAKO SCRUBBER across 11 languages. Each language section includes the app name, short description, and full description with their respective character limits.
 
 ---
 
@@ -414,6 +414,47 @@ MAKO SCRUBBER: EXIF 清除器
 
 ---
 
+## Ukrainian (uk)
+
+### App Name (30 character limit)
+```
+MAKO SCRUBBER: Очищення EXIF
+```
+
+### Short Description (80 character limit)
+```
+Видаляйте EXIF-метадані та GPS-теги з фото й відео локально, на пристрої.
+```
+
+### Full Description (4000 character limit)
+```
+Соціальні мережі та месенджери стверджують, що «видаляють» метадані ваших фото й відео — але часто лише після того, як спершу зберуть їх на сервері. MAKO SCRUBBER видаляє їх на вашому пристрої, ще до того, як вони його покинуть.
+
+ВІДКРИТИЙ КОД. Повний вихідний код доступний на github.com/themakoway/mako-scrubber (GPLv3)
+
+Він робить дві речі: аудит і очищення.
+
+**Аудит:** Дізнайтеся, що саме приховано у вашому фото чи відео — GPS-координати, виробник і модель камери, позначки часу, теги програмного забезпечення.
+
+**Очищення:** Отримайте чисту копію з усім видаленим, готову до надсилання.
+
+У цього додатка навіть немає дозволу на доступ до інтернету. Жодних серверів, жодних SDK для відстеження, жодної аналітики. Ми не змогли б забрати ваші дані, навіть якби захотіли.
+
+Можливості:
+• Перегляд прихованих даних EXIF — GPS, апаратне забезпечення камери, версія програмного забезпечення та інше
+• Видалення ідентифікаційних метаданих одним дотиком
+• Пакетна обробка кількох фото й відео одночасно
+• Лише офлайн за задумом — дозвіл на інтернет не запитується й не потрібен
+• Мінімалістичний інтерфейс — без реклами, зайвого баласту й маніпуляцій заради «залученості»
+• 100% безкоштовно
+
+Цей додаток з’явився, бо мені потрібен був інструмент, який добре виконує одне завдання й не стежить у фоновому режимі. Використовуйте його, щоб перевірити свою бібліотеку або очистити фото й відео перед публікацією в інтернеті.
+
+Ваші дані мають належати вам. MAKO SCRUBBER дбає про це.
+```
+
+---
+
 ## Field Reference Guide
 
 | Field | Character Limit |
@@ -434,6 +475,7 @@ MAKO SCRUBBER: EXIF 清除器
 8. **Portuguese — Portugal (pt-PT)**
 9. **Portuguese — Brazil (pt-BR)**
 10. **Simplified Chinese (zh-CN)**
+11. **Ukrainian (uk)**
 
 ---
 
