@@ -505,7 +505,7 @@ fun DashboardContent(
                         modifier = Modifier.weight(1f).height(44.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
                         shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(vertical = 0.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
                         Text(stringResource(R.string.delete), color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
                     }
@@ -524,7 +524,7 @@ fun DashboardContent(
                         modifier = Modifier.weight(1f).height(44.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
                         shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(vertical = 0.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
                         Text(stringResource(R.string.share), color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
                     }

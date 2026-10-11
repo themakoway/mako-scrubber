@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
@@ -290,7 +291,7 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                             enabled = !isScrubbing,
                             colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
                             modifier = Modifier.weight(1f).height(44.dp),
-                            contentPadding = PaddingValues(vertical = 0.dp)
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                         ) {
                             val label = when {
                                 mediaUris.size == 1 && allVideoInput -> stringResource(R.string.scrub_video_1)
@@ -300,7 +301,15 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                                 else -> stringResource(R.string.scrub_n, mediaUris.size)
                             }
 
-                            Text(if (isScrubbing) stringResource(R.string.scrubbing) else label, color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
+                            Text(
+                                if (isScrubbing) stringResource(R.string.scrubbing) else label,
+                                color = Color.White,
+                                fontFamily = CauseFont,
+                                fontSize = 13.sp,
+                                lineHeight = 16.sp,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     } else {
                         Button(
@@ -326,7 +335,7 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = MakoCoral),
                             modifier = Modifier.weight(1f).height(44.dp),
-                            contentPadding = PaddingValues(vertical = 0.dp)
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                         ) {
                             val label = when {
                                 scrubbedUris.size == 1 && resultAllVideo -> stringResource(R.string.share_video_1)
@@ -335,14 +344,22 @@ fun ScrubAuditScreen(mediaUris: List<Uri>, autoScrub: Boolean) {
                                 resultAllVideo -> stringResource(R.string.share_video_n, scrubbedUris.size)
                                 else -> stringResource(R.string.share_n, scrubbedUris.size)
                             }
-                            Text(label, color = Color.White, fontFamily = CauseFont, fontSize = 13.sp)
+                            Text(
+                                label,
+                                color = Color.White,
+                                fontFamily = CauseFont,
+                                fontSize = 13.sp,
+                                lineHeight = 16.sp,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
 
                     OutlinedButton(
                         onClick = { (context as? Activity)?.finish() },
                         modifier = Modifier.weight(1f).height(44.dp),
-                        contentPadding = PaddingValues(vertical = 0.dp)
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
                         Text(stringResource(R.string.cancel), color = Color.Gray, fontFamily = CauseFont, fontSize = 13.sp)
                     }
