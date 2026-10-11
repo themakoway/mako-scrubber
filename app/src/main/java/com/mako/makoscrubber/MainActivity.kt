@@ -332,7 +332,12 @@ fun DashboardContent(
                     modifier = Modifier.fillMaxWidth().height(60.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MakoCoral)
                 ) {
-                    Text(stringResource(R.string.clean_new), color = Color.White, fontFamily = CauseFont)
+                    Text(
+                        stringResource(R.string.clean_new),
+                        color = Color.White,
+                        fontFamily = CauseFont,
+                        textAlign = TextAlign.Center
+                    )
                 }
             } else {
                 Spacer(modifier = Modifier.height(60.dp))
